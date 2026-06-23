@@ -21,6 +21,7 @@
       --exam: #fb7185;
       --todo: #34d399;
       --plan: #f59e0b;
+      --result: #c7d2fe;
       --shadow: 0 18px 50px rgba(2,8,23,0.35);
       --radius: 22px;
       --radius-sm: 14px;
@@ -413,7 +414,7 @@
 
     .tiny { font-size: 0.82rem; color: var(--muted); }
     .result-summary {
-      color: #c7d2fe;
+      color: var(--result);
       font-size: 0.86rem;
       font-weight: 600;
     }
@@ -931,14 +932,20 @@
             state.exams.unshift(item);
           }
         } else {
+          const score = parseScoreNumber(els.fieldScore.value);
+          const totalMarks = parseTotalMarks(els.fieldTotal.value);
+          if (Number.isFinite(score) && Number.isFinite(totalMarks) && score > totalMarks) {
+            alert('Score cannot be greater than total marks.');
+            return;
+          }
           const item = normalizeQuiz({
             id: modalState.editingId || uid(),
             title,
             date: els.fieldDate.value,
             notes: els.fieldNote.value.trim(),
             completed: els.fieldCompleted.checked,
-            score: parseOptionalNumber(els.fieldScore.value),
-            totalMarks: parseOptionalNumber(els.fieldTotal.value)
+            score,
+            totalMarks
           });
           if (modalState.editingId) {
             state.quizzes = state.quizzes.map(entry => entry.id === modalState.editingId ? item : entry);
@@ -995,25 +1002,31 @@
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
-    function parseOptionalNumber(value) {
+    function parseScoreNumber(value) {
       if (value === '' || value === null || value === undefined) return null;
       const parsed = Number(value);
       if (!Number.isFinite(parsed) || parsed < 0) return null;
       return parsed;
     }
 
+    function parseTotalMarks(value) {
+      const parsed = parseScoreNumber(value);
+      if (parsed === null) return null;
+      return parsed > 0 ? parsed : null;
+    }
+
     function normalizeQuiz(quiz) {
       return {
         ...quiz,
         completed: Boolean(quiz.completed),
-        score: parseOptionalNumber(quiz.score),
-        totalMarks: parseOptionalNumber(quiz.totalMarks)
+        score: parseScoreNumber(quiz.score),
+        totalMarks: parseTotalMarks(quiz.totalMarks)
       };
     }
 
     function formatQuizResult(quiz) {
       if (!quiz.completed) return 'Not completed';
-      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks) && quiz.totalMarks > 0) {
+      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks)) {
         const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
         return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
       }
