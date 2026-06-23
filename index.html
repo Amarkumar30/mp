@@ -7,22 +7,22 @@
   <title>My Planner</title>
   <style>
     :root {
-      --bg: #06111f;
-      --bg-2: #0f172a;
-      --surface: rgba(15, 23, 42, 0.82);
-      --surface-2: rgba(30, 41, 59, 0.92);
-      --border: rgba(255,255,255,0.13);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #818cf8;
-      --accent-soft: rgba(56, 189, 248, 0.16);
-      --quiz: #38bdf8;
-      --exam: #fb7185;
-      --todo: #34d399;
+      --bg: #faf8f3;
+      --bg-2: #f5f0e8;
+      --surface: rgba(255, 248, 240, 0.95);
+      --surface-2: rgba(245, 240, 232, 0.98);
+      --border: rgba(51, 51, 51, 0.12);
+      --text: #2c2c2c;
+      --muted: #6b7280;
+      --accent: #f59e0b;
+      --accent-2: #f97316;
+      --accent-soft: rgba(245, 158, 11, 0.12);
+      --quiz: #3b82f6;
+      --exam: #ef4444;
+      --todo: #10b981;
       --plan: #f59e0b;
-      --result-summary: #c7d2fe;
-      --shadow: 0 18px 50px rgba(2,8,23,0.35);
+      --result-summary: #dbeafe;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
       --radius: 22px;
       --radius-sm: 14px;
       font-synthesis: none;
@@ -36,8 +36,8 @@
     body {
       font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 24%),
-        radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.2), transparent 28%),
+        radial-gradient(circle at top right, rgba(254, 215, 170, 0.25), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(254, 243, 199, 0.2), transparent 40%),
         linear-gradient(135deg, var(--bg), var(--bg-2));
       color: var(--text);
       line-height: 1.55;
@@ -48,9 +48,9 @@
       content: "";
       position: fixed;
       inset: 0;
-      background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
       background-size: 28px 28px;
-      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent 90%);
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent 90%);
       pointer-events: none;
       z-index: 0;
     }
@@ -233,6 +233,28 @@
       font-size: 0.82rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
+    }
+
+    .daily-quote {
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      background: rgba(254, 215, 170, 0.08);
+      border: 1px solid rgba(254, 215, 170, 0.2);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .quote-text {
+      font-style: italic;
+      font-size: 1rem;
+      margin: 0 0 8px 0;
+      color: var(--text);
+    }
+
+    .quote-author {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
     }
 
     .grid { display: grid; gap: 14px; }
@@ -521,6 +543,10 @@
             <div class="value" id="count-plan">0</div>
           </div>
         </div>
+        <div id="daily-quote" class="daily-quote">
+          <p id="quote-text" class="quote-text">—</p>
+          <p id="quote-author" class="quote-author">—</p>
+        </div>
         <div class="tiny">Everything is saved automatically in your browser, so it stays available when you revisit the page.</div>
       </div>
     </section>
@@ -647,12 +673,50 @@
 
   <script>
     const STORAGE_KEY = 'my-planner-state-v1';
-    const LOCK_CODE = atob('bXlwbGFubmVyMjAyNg==');
+    const LOCK_CODE = 'imthebest';
+    const DAILY_QUOTES = [
+      { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+      { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+      { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+      { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+      { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+      { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
+      { text: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
+      { text: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama" },
+      { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+      { text: "Your limitation—it's only your imagination.", author: "Unknown" },
+      { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+      { text: "Sometimes we're tested not to show our weaknesses, but to discover our strengths.", author: "Unknown" },
+      { text: "Everything you want is on the other side of fear.", author: "George Addair" },
+      { text: "Success doesn't just find you. You have to go out and get it.", author: "Unknown" },
+      { text: "Great things never come from comfort zones.", author: "Unknown" },
+      { text: "Dream it. Wish it. Do it.", author: "Unknown" },
+      { text: "Success is walking from failure to failure with no loss of enthusiasm.", author: "Winston Churchill" },
+      { text: "You learn more from failure than from success.", author: "Unknown" },
+      { text: "It's not whether you got knocked down, it's whether you get up.", author: "Vince Lombardi" },
+      { text: "If you are working on something that you really care about, you don't have to be pushed. The vision pulls you.", author: "Steve Jobs" }
+    ];
     const lockScreen = document.getElementById('lock-screen');
     const appShell = document.getElementById('app-shell');
     const unlockInput = document.getElementById('unlock-input');
     const unlockButton = document.getElementById('unlock-btn');
     const unlockError = document.getElementById('unlock-error');
+
+    function getDailyQuote() {
+      const today = new Date().toDateString();
+      const quoteIndex = today.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % DAILY_QUOTES.length;
+      return DAILY_QUOTES[quoteIndex];
+    }
+
+    function displayDailyQuote() {
+      const quote = getDailyQuote();
+      const quoteText = document.getElementById('quote-text');
+      const quoteAuthor = document.getElementById('quote-author');
+      if (quoteText && quoteAuthor) {
+        quoteText.textContent = `"${quote.text}"`;
+        quoteAuthor.textContent = `— ${quote.author}`;
+      }
+    }
 
     function unlockPlanner() {
       if (unlockInput.value.trim() === LOCK_CODE) {
@@ -660,6 +724,7 @@
         appShell.classList.remove('hidden');
         unlockInput.value = '';
         unlockError.textContent = '';
+        displayDailyQuote();
       } else {
         unlockError.textContent = 'Incorrect code. Please try again.';
       }
