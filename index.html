@@ -1036,7 +1036,7 @@
 
     function formatQuizResult(quiz) {
       if (!quiz.completed) return 'Not completed';
-      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks) && quiz.totalMarks > 0) {
+      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks)) {
         const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
         return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
       }
