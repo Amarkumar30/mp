@@ -1022,7 +1022,7 @@
     function parseTotalMarks(value) {
       const parsed = parseScoreNumber(value);
       if (parsed === null) return null;
-      return parsed > 0 ? parsed : null;
+      return parsed >= 1 ? parsed : null;
     }
 
     function normalizeQuiz(quiz) {
