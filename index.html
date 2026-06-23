@@ -830,7 +830,6 @@
       };
       els.modalTitle.textContent = titleMap[kind] || 'Add Item';
 
-      // Title stays visible for all planner item types.
       els.fieldTitleWrap.classList.remove('hidden');
       els.fieldDateWrap.classList.toggle('hidden', kind === 'plan');
       els.fieldCompletedWrap.classList.toggle('hidden', kind !== 'quiz');
@@ -1037,7 +1036,6 @@
 
     function formatQuizResult(quiz) {
       if (!quiz.completed) return 'Not completed';
-      if (quiz.totalMarks === 0) return 'Completed';
       if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks)) {
         const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
         return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
