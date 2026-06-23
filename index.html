@@ -830,7 +830,7 @@
       };
       els.modalTitle.textContent = titleMap[kind] || 'Add Item';
 
-      els.fieldTitleWrap.classList.toggle('hidden', kind === 'todo' || kind === 'plan' ? false : false);
+      els.fieldTitleWrap.classList.toggle('hidden', false);
       els.fieldDateWrap.classList.toggle('hidden', kind === 'plan');
       els.fieldCompletedWrap.classList.toggle('hidden', kind !== 'quiz');
       els.fieldScoreWrap.classList.toggle('hidden', kind !== 'quiz');
@@ -1026,7 +1026,7 @@
 
     function formatQuizResult(quiz) {
       if (!quiz.completed) return 'Not completed';
-      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks)) {
+      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks) && quiz.totalMarks > 0) {
         const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
         return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
       }
