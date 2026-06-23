@@ -412,6 +412,22 @@
     }
 
     .tiny { font-size: 0.82rem; color: var(--muted); }
+    .result-summary {
+      color: #c7d2fe;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .checkbox-label input {
+      width: auto;
+      margin: 0;
+    }
     .hidden { display: none !important; }
 
     .lock-screen {
@@ -589,6 +605,22 @@
             <input id="field-date" type="date" />
           </label>
         </div>
+        <div id="field-completed-wrap" class="hidden">
+          <label class="checkbox-label">
+            <input id="field-completed" type="checkbox" />
+            Quiz completed
+          </label>
+        </div>
+        <div id="field-score-wrap" class="hidden">
+          <label>Score
+            <input id="field-score" type="number" min="0" step="1" placeholder="18" />
+          </label>
+        </div>
+        <div id="field-total-wrap" class="hidden">
+          <label>Total marks
+            <input id="field-total" type="number" min="1" step="1" placeholder="20" />
+          </label>
+        </div>
         <div id="field-month-wrap" class="hidden">
           <label>Month
             <input id="field-month" type="month" />
@@ -666,11 +698,17 @@
       modalTitle: document.getElementById('modal-title'),
       fieldTitle: document.getElementById('field-title'),
       fieldDate: document.getElementById('field-date'),
+      fieldCompleted: document.getElementById('field-completed'),
+      fieldScore: document.getElementById('field-score'),
+      fieldTotal: document.getElementById('field-total'),
       fieldMonth: document.getElementById('field-month'),
       fieldNote: document.getElementById('field-note'),
       fieldItems: document.getElementById('field-items'),
       fieldTitleWrap: document.getElementById('field-title-wrap'),
       fieldDateWrap: document.getElementById('field-date-wrap'),
+      fieldCompletedWrap: document.getElementById('field-completed-wrap'),
+      fieldScoreWrap: document.getElementById('field-score-wrap'),
+      fieldTotalWrap: document.getElementById('field-total-wrap'),
       fieldMonthWrap: document.getElementById('field-month-wrap'),
       fieldNoteWrap: document.getElementById('field-note-wrap'),
       fieldItemsWrap: document.getElementById('field-items-wrap')
@@ -741,7 +779,7 @@
           return;
         }
         const parsed = JSON.parse(saved);
-        state.quizzes = Array.isArray(parsed.quizzes) ? parsed.quizzes : [];
+        state.quizzes = Array.isArray(parsed.quizzes) ? parsed.quizzes.map(normalizeQuiz) : [];
         state.exams = Array.isArray(parsed.exams) ? parsed.exams : [];
         state.todos = Array.isArray(parsed.todos) ? parsed.todos : [];
         state.plans = Array.isArray(parsed.plans) ? parsed.plans : [];
@@ -753,8 +791,8 @@
 
     function seedSampleData() {
       state.quizzes = [
-        { id: uid(), title: 'Math Quiz #3', date: '2026-06-24', notes: 'Focus on derivatives and integrals.' },
-        { id: uid(), title: 'Reading Check', date: '2026-06-28', notes: 'Bring notes from Chapter 4.' }
+        { id: uid(), title: 'Math Quiz #3', date: '2026-06-24', notes: 'Focus on derivatives and integrals.', completed: true, score: 18, totalMarks: 20 },
+        { id: uid(), title: 'Reading Check', date: '2026-06-28', notes: 'Bring notes from Chapter 4.', completed: false, score: null, totalMarks: null }
       ];
       state.exams = [
         { id: uid(), title: 'Physics Midterm', date: '2026-06-30', notes: 'Review circuits and waves.' }
@@ -793,6 +831,9 @@
 
       els.fieldTitleWrap.classList.toggle('hidden', kind === 'todo' || kind === 'plan' ? false : false);
       els.fieldDateWrap.classList.toggle('hidden', kind === 'plan');
+      els.fieldCompletedWrap.classList.toggle('hidden', kind !== 'quiz');
+      els.fieldScoreWrap.classList.toggle('hidden', kind !== 'quiz');
+      els.fieldTotalWrap.classList.toggle('hidden', kind !== 'quiz');
       els.fieldMonthWrap.classList.toggle('hidden', kind !== 'plan');
       els.fieldNoteWrap.classList.toggle('hidden', false);
       els.fieldItemsWrap.classList.toggle('hidden', kind !== 'todo');
@@ -813,6 +854,9 @@
           els.fieldDate.value = item.date || '';
           els.fieldMonth.value = item.month || '';
           els.fieldNote.value = item.notes || '';
+          els.fieldCompleted.checked = Boolean(item.completed);
+          els.fieldScore.value = Number.isFinite(item.score) ? String(item.score) : '';
+          els.fieldTotal.value = Number.isFinite(item.totalMarks) ? String(item.totalMarks) : '';
           if (kind === 'todo') {
             els.fieldItems.value = (item.items || []).map(entry => `${entry.done ? '[x]' : '[ ]'} ${entry.text}`).join('\n');
           }
@@ -826,6 +870,9 @@
     function resetModalFields() {
       els.fieldTitle.value = '';
       els.fieldDate.value = '';
+      els.fieldCompleted.checked = false;
+      els.fieldScore.value = '';
+      els.fieldTotal.value = '';
       els.fieldMonth.value = '';
       els.fieldNote.value = '';
       els.fieldItems.value = '';
@@ -871,19 +918,28 @@
           state.plans.unshift(item);
         }
       } else {
-        const item = {
-          id: modalState.editingId || uid(),
-          title,
-          date: els.fieldDate.value,
-          notes: els.fieldNote.value.trim()
-        };
         if (modalState.kind === 'exam') {
+          const item = {
+            id: modalState.editingId || uid(),
+            title,
+            date: els.fieldDate.value,
+            notes: els.fieldNote.value.trim()
+          };
           if (modalState.editingId) {
             state.exams = state.exams.map(entry => entry.id === modalState.editingId ? item : entry);
           } else {
             state.exams.unshift(item);
           }
         } else {
+          const item = normalizeQuiz({
+            id: modalState.editingId || uid(),
+            title,
+            date: els.fieldDate.value,
+            notes: els.fieldNote.value.trim(),
+            completed: els.fieldCompleted.checked,
+            score: parseOptionalNumber(els.fieldScore.value),
+            totalMarks: parseOptionalNumber(els.fieldTotal.value)
+          });
           if (modalState.editingId) {
             state.quizzes = state.quizzes.map(entry => entry.id === modalState.editingId ? item : entry);
           } else {
@@ -939,6 +995,32 @@
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
+    function parseOptionalNumber(value) {
+      if (value === '' || value === null || value === undefined) return null;
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed) || parsed < 0) return null;
+      return parsed;
+    }
+
+    function normalizeQuiz(quiz) {
+      return {
+        ...quiz,
+        completed: Boolean(quiz.completed),
+        score: parseOptionalNumber(quiz.score),
+        totalMarks: parseOptionalNumber(quiz.totalMarks)
+      };
+    }
+
+    function formatQuizResult(quiz) {
+      if (!quiz.completed) return 'Not completed';
+      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks) && quiz.totalMarks > 0) {
+        const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
+        return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
+      }
+      if (Number.isFinite(quiz.score)) return `${quiz.score} marks`;
+      return 'Completed';
+    }
+
     function sortByDate(items) {
       return items.slice().sort((a, b) => {
         const aDate = a.date || a.month || '';
@@ -961,6 +1043,7 @@
             <div class="meta">${kind === 'exam' ? 'Exam' : 'Quiz'}</div>
             <h3>${escapeHtml(item.title)}</h3>
             <p class="date">${formatDate(item.date)}</p>
+            ${kind === 'quiz' ? `<p class="result-summary">${formatQuizResult(item)}</p>` : ''}
             <p>${escapeHtml(item.notes || 'No notes yet.')}</p>
             <div class="card-actions">
               <button data-action="edit" data-kind="${kind}" data-id="${item.id}">Edit</button>
@@ -980,6 +1063,7 @@
           <div class="meta">Quiz</div>
           <h3>${escapeHtml(item.title)}</h3>
           <p class="date">${formatDate(item.date)}</p>
+          <p class="result-summary">${formatQuizResult(item)}</p>
           <p>${escapeHtml(item.notes || 'No notes yet.')}</p>
           <div class="card-actions">
             <button data-action="edit" data-kind="quiz" data-id="${item.id}">Edit</button>
