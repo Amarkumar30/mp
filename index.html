@@ -830,7 +830,7 @@
       };
       els.modalTitle.textContent = titleMap[kind] || 'Add Item';
 
-      els.fieldTitleWrap.classList.toggle('hidden', false);
+      els.fieldTitleWrap.classList.remove('hidden');
       els.fieldDateWrap.classList.toggle('hidden', kind === 'plan');
       els.fieldCompletedWrap.classList.toggle('hidden', kind !== 'quiz');
       els.fieldScoreWrap.classList.toggle('hidden', kind !== 'quiz');
@@ -932,8 +932,18 @@
             state.exams.unshift(item);
           }
         } else {
-          const score = parseScoreNumber(els.fieldScore.value);
-          const totalMarks = parseTotalMarks(els.fieldTotal.value);
+          const scoreRaw = els.fieldScore.value.trim();
+          const totalRaw = els.fieldTotal.value.trim();
+          const score = parseScoreNumber(scoreRaw);
+          const totalMarks = parseTotalMarks(totalRaw);
+          if (scoreRaw !== '' && score === null) {
+            alert('Score must be 0 or more.');
+            return;
+          }
+          if (totalRaw !== '' && totalMarks === null) {
+            alert('Total marks must be at least 1.');
+            return;
+          }
           if (Number.isFinite(score) && Number.isFinite(totalMarks) && score > totalMarks) {
             alert('Score cannot be greater than total marks.');
             return;
