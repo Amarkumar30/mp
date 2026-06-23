@@ -70,7 +70,7 @@
       margin-bottom: 22px;
     }
 
-    .hero-card, .panel, .stat-card, .card, .modal, .calendar-cell, .pill {
+    .hero-card, .panel, .stat-card, .card, .modal, .calendar-cell, .pill, .lock-card {
       background: var(--surface);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -414,6 +414,36 @@
     .tiny { font-size: 0.82rem; color: var(--muted); }
     .hidden { display: none !important; }
 
+    .lock-screen {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.16), transparent 24%), linear-gradient(135deg, var(--bg), var(--bg-2));
+      z-index: 100;
+    }
+
+    .lock-card {
+      width: min(440px, 100%);
+      border-radius: 28px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .lock-card h1 { font-size: clamp(1.6rem, 2.4vw, 2.2rem); margin-bottom: 8px; }
+    .lock-card p { color: var(--muted); margin-bottom: 12px; }
+    .lock-card input {
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    .lock-error {
+      min-height: 1.2em;
+      color: #fda4af;
+      font-size: 0.92rem;
+      margin-top: 6px;
+    }
+
     @media (max-width: 860px) {
       .hero { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -428,7 +458,18 @@
   </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div id="lock-screen" class="lock-screen">
+    <div class="lock-card">
+      <div class="eyebrow">Protected planner</div>
+      <h1>Enter access code</h1>
+      <p>Only someone with the correct code can view this planner.</p>
+      <input id="unlock-input" type="password" autocomplete="current-password" placeholder="Enter code" />
+      <button id="unlock-btn" class="btn btn-primary" style="width: 100%; margin-top: 4px;">Unlock</button>
+      <p id="unlock-error" class="lock-error"></p>
+    </div>
+  </div>
+
+  <div id="app-shell" class="app-shell hidden">
     <section class="hero">
       <div class="hero-card">
         <div class="eyebrow">✨ Static • Fast • Beautiful</div>
@@ -573,6 +614,29 @@
 
   <script>
     const STORAGE_KEY = 'my-planner-state-v1';
+    const LOCK_CODE = atob('bXlwbGFubmVyMjAyNg==');
+    const lockScreen = document.getElementById('lock-screen');
+    const appShell = document.getElementById('app-shell');
+    const unlockInput = document.getElementById('unlock-input');
+    const unlockButton = document.getElementById('unlock-btn');
+    const unlockError = document.getElementById('unlock-error');
+
+    function unlockPlanner() {
+      if (unlockInput.value.trim() === LOCK_CODE) {
+        lockScreen.classList.add('hidden');
+        appShell.classList.remove('hidden');
+        unlockInput.value = '';
+        unlockError.textContent = '';
+      } else {
+        unlockError.textContent = 'Incorrect code. Please try again.';
+      }
+    }
+
+    unlockButton.addEventListener('click', unlockPlanner);
+    unlockInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') unlockPlanner();
+    });
+
     const state = {
       quizzes: [],
       exams: [],
