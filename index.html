@@ -21,7 +21,7 @@
       --exam: #fb7185;
       --todo: #34d399;
       --plan: #f59e0b;
-      --result: #c7d2fe;
+      --result-summary: #c7d2fe;
       --shadow: 0 18px 50px rgba(2,8,23,0.35);
       --radius: 22px;
       --radius-sm: 14px;
@@ -414,7 +414,7 @@
 
     .tiny { font-size: 0.82rem; color: var(--muted); }
     .result-summary {
-      color: var(--result);
+      color: var(--result-summary);
       font-size: 0.86rem;
       font-weight: 600;
     }
@@ -830,6 +830,7 @@
       };
       els.modalTitle.textContent = titleMap[kind] || 'Add Item';
 
+      // Title stays visible for all planner item types.
       els.fieldTitleWrap.classList.remove('hidden');
       els.fieldDateWrap.classList.toggle('hidden', kind === 'plan');
       els.fieldCompletedWrap.classList.toggle('hidden', kind !== 'quiz');
@@ -1036,6 +1037,7 @@
 
     function formatQuizResult(quiz) {
       if (!quiz.completed) return 'Not completed';
+      if (quiz.totalMarks === 0) return 'Completed';
       if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks)) {
         const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
         return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
