@@ -1,1295 +1,1762 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
-  <title>My Planner</title>
-  <style>
-    :root {
-      --bg: #faf8f3;
-      --bg-2: #f5f0e8;
-      --surface: rgba(255, 248, 240, 0.95);
-      --surface-2: rgba(245, 240, 232, 0.98);
-      --border: rgba(51, 51, 51, 0.12);
-      --text: #2c2c2c;
-      --muted: #6b7280;
-      --accent: #f59e0b;
-      --accent-2: #f97316;
-      --accent-soft: rgba(245, 158, 11, 0.12);
-      --quiz: #3b82f6;
-      --exam: #ef4444;
-      --todo: #10b981;
-      --plan: #f59e0b;
-      --result-summary: #dbeafe;
-      --shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
-      --radius: 22px;
-      --radius-sm: 14px;
-      font-synthesis: none;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0f172a" />
+<title>My Planner — Amar</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600;700;800&display=swap');
 
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; min-height: 100%; }
-    body {
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(254, 215, 170, 0.25), transparent 35%),
-        radial-gradient(circle at bottom left, rgba(254, 243, 199, 0.2), transparent 40%),
-        linear-gradient(135deg, var(--bg), var(--bg-2));
-      color: var(--text);
-      line-height: 1.55;
-      overflow-x: hidden;
-    }
+:root {
+  --bg: #0b0f1a;
+  --surface: rgba(255,255,255,0.05);
+  --surface-hover: rgba(255,255,255,0.09);
+  --surface-strong: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.1);
+  --border-accent: rgba(255,200,60,0.35);
+  --text: #f0ece0;
+  --text-muted: rgba(240,236,224,0.55);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.18);
+  --gold-glow: rgba(245,200,66,0.08);
+  --orange: #f97316;
+  --green: #34d399;
+  --blue: #60a5fa;
+  --red: #f87171;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 40px rgba(0,0,0,0.45);
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.4) 1px, transparent 1px);
-      background-size: 28px 28px;
-      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent 90%);
-      pointer-events: none;
-      z-index: 0;
-    }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .app-shell {
-      position: relative;
-      z-index: 1;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 28px 20px 48px;
-    }
+html, body { min-height: 100%; }
 
-    .hero {
-      display: grid;
-      grid-template-columns: 1.4fr 0.9fr;
-      gap: 18px;
-      align-items: stretch;
-      margin-bottom: 22px;
-      max-width: 100%;
-    }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
 
-    .hero-card, .panel, .stat-card, .card, .modal, .calendar-cell, .pill, .lock-card {
-      background: var(--surface);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
+/* ── Gandhi Background ── */
+#gandhi-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mahatma-Gandhi%2C_studio%2C_1931.jpg/800px-Mahatma-Gandhi%2C_studio%2C_1931.jpg')
+    right center / contain no-repeat,
+    linear-gradient(135deg, #0b0f1a 0%, #101624 60%, #0f1a10 100%);
+  opacity: 0.18;
+  pointer-events: none;
+}
 
-    .hero-card, .panel {
-      border-radius: var(--radius);
-      padding: 22px 22px 20px;
-    }
+#gandhi-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #0b0f1a 38%, transparent 80%, #0b0f1a 100%);
+}
 
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--accent);
-      background: var(--accent-soft);
-      margin: 0 0 10px;
-    }
+/* ── App Shell ── */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
 
-    h1, h2, h3, p { margin: 0; }
-    .hero h1 {
-      font-size: clamp(1.5rem, 4vw, 3rem);
-      line-height: 1.05;
-      margin-bottom: 10px;
-    }
+/* ── Lock Screen ── */
+.lock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    url('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mahatma-Gandhi%2C_studio%2C_1931.jpg/800px-Mahatma-Gandhi%2C_studio%2C_1931.jpg')
+    right center / 45% no-repeat,
+    linear-gradient(135deg, #08100a 0%, #0b0f1a 100%);
+}
 
-    .hero p {
-      color: var(--muted);
-      max-width: 620px;
-      font-size: 1rem;
-    }
+.lock-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(8,16,10,0.97) 55%, rgba(8,16,10,0.65) 100%);
+}
 
-    .hero-card {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.12));
-      position: relative;
-      overflow: hidden;
-    }
+.lock-card {
+  position: relative;
+  width: min(460px, 100%);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-accent);
+  border-radius: 28px;
+  padding: 40px 32px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 60px rgba(245,200,66,0.08), var(--shadow);
+}
 
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      inset: auto -30px -30px auto;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 68%);
-      pointer-events: none;
-    }
+.lock-eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--border-accent);
+  padding: 5px 14px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
 
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
-    }
+.lock-card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
 
-    .pill {
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 0.83rem;
-      color: var(--text);
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.08);
-    }
+.lock-quote {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
 
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
-      position: sticky;
-      top: 10px;
-      z-index: 10;
-      padding: 10px 0;
-    }
+.lock-quote cite {
+  display: block;
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--gold);
+  margin-top: 6px;
+  letter-spacing: 0.1em;
+}
 
-    .tab-btn {
-      border: 1px solid transparent;
-      background: rgba(255,255,255,0.04);
-      color: var(--muted);
-      border-radius: 999px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
+.lock-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px 16px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 1rem;
+  outline: none;
+  text-align: center;
+  letter-spacing: 0.2em;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
 
-    .tab-btn.active {
-      color: var(--text);
-      background: var(--accent-soft);
-      border-color: rgba(56, 189, 248, 0.24);
-    }
+.lock-input:focus { border-color: var(--gold); }
 
-    .view { display: none; }
-    .view.active { display: block; }
+.btn-gold {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold), #e8a020);
+  color: #0b0f1a;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.18s;
+  letter-spacing: 0.04em;
+}
 
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+.btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
 
-    .section-head h2 {
-      font-size: 1.2rem;
-    }
+.lock-error {
+  min-height: 1.4em;
+  color: var(--red);
+  font-size: 0.88rem;
+  margin-top: 10px;
+}
 
-    .btn {
-      border: 1px solid transparent;
-      border-radius: 999px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: transform 0.18s ease, background 0.2s ease;
-    }
+/* ── Header ── */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+}
 
-    .btn:hover { transform: translateY(-1px); }
-    .btn-primary {
-      color: var(--bg);
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    }
-    .btn-secondary {
-      color: var(--text);
-      background: rgba(255,255,255,0.05);
-      border-color: rgba(255,255,255,0.12);
-    }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 16px;
-    }
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--gold-dim);
+  border: 1px solid var(--border-accent);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+}
 
-    .stat-card {
-      border-radius: var(--radius-sm);
-      padding: 16px;
-    }
+.brand h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text);
+}
 
-    .stat-card .value {
-      font-size: 1.55rem;
-      font-weight: 800;
-      margin-top: 4px;
-    }
+.brand span {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
 
-    .stat-card .label {
-      color: var(--muted);
-      font-size: 0.82rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-    }
+.header-date {
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
 
-    .daily-quote {
-      border-radius: var(--radius-sm);
-      padding: 18px;
-      background: rgba(254, 215, 170, 0.08);
-      border: 1px solid rgba(254, 215, 170, 0.2);
-      margin-bottom: 16px;
-      text-align: center;
-    }
+.header-date strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 700;
+}
 
-    .quote-text {
-      font-style: italic;
-      font-size: 1rem;
-      margin: 0 0 8px 0;
-      color: var(--text);
-    }
+/* ── Gandhi Quote Banner ── */
+.gandhi-banner {
+  background: linear-gradient(135deg, rgba(245,200,66,0.1), rgba(249,115,22,0.06));
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+  padding: 20px 28px;
+  margin-bottom: 28px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
 
-    .quote-author {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
+.gandhi-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 2px solid var(--gold);
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
 
-    .grid { display: grid; gap: 14px; }
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 14px;
-    }
+.gandhi-quote-text {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.55;
+}
 
-    .card {
-      border-radius: var(--radius-sm);
-      padding: 16px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+.gandhi-quote-author {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0 auto auto 0;
-      width: 100%;
-      height: 3px;
-      background: var(--accent);
-    }
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  position: sticky;
+  top: 10px;
+  z-index: 20;
+  padding: 10px 0;
+}
 
-    .card.quiz::before { background: var(--quiz); }
-    .card.exam::before { background: var(--exam); }
-    .card.todo::before { background: var(--todo); }
-    .card.plan::before { background: var(--plan); }
+.tab-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  backdrop-filter: blur(12px);
+}
 
-    .meta {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.76rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+.tab-btn:hover { color: var(--text); background: var(--surface-hover); }
 
-    .card h3 { font-size: 1rem; }
-    .card p { color: var(--muted); font-size: 0.92rem; }
-    .card .date { color: var(--accent); font-weight: 600; }
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: auto;
-      padding-top: 8px;
-    }
+.tab-btn.active {
+  color: #0b0f1a;
+  background: var(--gold);
+  border-color: var(--gold);
+}
 
-    .card-actions button {
-      border: none;
-      border-radius: 999px;
-      padding: 7px 10px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      color: var(--text);
-      background: rgba(255,255,255,0.07);
-    }
-    .card-actions .danger { color: #fecaca; background: rgba(251, 113, 133, 0.15); }
+/* ── Views ── */
+.view { display: none; }
+.view.active { display: block; }
 
-    .todo-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    .todo-item:last-child { border-bottom: none; }
-    .todo-item button {
-      border: none;
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      font-size: 0.92rem;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .todo-item .done { color: var(--todo); }
-    .todo-item .text-done { color: var(--muted); text-decoration: line-through; }
+/* ── Section Head ── */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
 
-    .empty-state {
-      border: 1px dashed rgba(255,255,255,0.12);
-      border-radius: var(--radius-sm);
-      padding: 28px 16px;
-      text-align: center;
-      color: var(--muted);
-      background: rgba(255,255,255,0.025);
-    }
+.section-head h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
 
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+/* ── Buttons ── */
+.btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 9px 18px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.18s;
+}
 
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 8px;
-    }
+.btn:hover { transform: translateY(-1px); }
 
-    .calendar-head {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      padding-bottom: 4px;
-    }
+.btn-primary {
+  background: var(--gold);
+  color: #0b0f1a;
+}
 
-    .calendar-cell {
-      min-height: 96px;
-      border-radius: 16px;
-      padding: 10px;
-      position: relative;
-      background: rgba(255,255,255,0.03);
-      border-color: rgba(255,255,255,0.08);
-    }
-    .calendar-cell.empty { background: transparent; border-color: transparent; box-shadow: none; }
-    .calendar-cell.today { border-color: rgba(56,189,248,0.45); }
-    .calendar-cell .day { font-weight: 700; font-size: 0.92rem; }
-    .calendar-cell .dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      background: var(--accent);
-    }
-    .dot.quiz { background: var(--quiz); }
-    .dot.exam { background: var(--exam); }
-    .dot.plan { background: var(--plan); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
 
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      background: rgba(2, 8, 23, 0.72);
-      backdrop-filter: blur(6px);
-      z-index: 50;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal {
-      width: min(560px, 100%);
-      border-radius: 24px;
-      padding: 18px;
-    }
-    .modal h3 { margin-bottom: 10px; }
-    .form-grid { display: grid; gap: 12px; }
-    label { display: grid; gap: 7px; color: var(--muted); font-size: 0.9rem; }
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-      padding: 11px 12px;
-      border-radius: 12px;
-      font: inherit;
-      outline: none;
-    }
-    textarea { min-height: 96px; resize: vertical; }
-    input:focus, textarea:focus, select:focus { border-color: rgba(56,189,248,0.4); }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 14px;
-    }
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
 
-    .tiny { font-size: 0.82rem; color: var(--muted); }
-    .result-summary {
-      color: var(--result-summary);
-      font-size: 0.86rem;
-      font-weight: 600;
-    }
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      color: var(--text);
-    }
-    .checkbox-label input {
-      width: auto;
-      margin: 0;
-    }
-    .hidden { display: none !important; }
+/* ── Stats ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
 
-    .lock-screen {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 20px;
-      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.16), transparent 24%), linear-gradient(135deg, var(--bg), var(--bg-2));
-      z-index: 100;
-    }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+}
 
-    .lock-card {
-      width: min(440px, 100%);
-      border-radius: 28px;
-      padding: 24px;
-      text-align: center;
-    }
+.stat-card .label {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 
-    .lock-card h1 { font-size: clamp(1.6rem, 2.4vw, 2.2rem); margin-bottom: 8px; }
-    .lock-card p { color: var(--muted); margin-bottom: 12px; }
-    .lock-card input {
-      margin-top: 8px;
-      margin-bottom: 8px;
-    }
-    .lock-error {
-      min-height: 1.2em;
-      color: #fda4af;
-      font-size: 0.92rem;
-      margin-top: 6px;
-    }
+.stat-card .value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-top: 4px;
+}
 
-    @media (max-width: 860px) {
-      .hero { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
+/* ── Cards Grid ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
 
-    @media (max-width: 560px) {
-      .app-shell { padding: 20px 12px 32px; }
-      .tabs { gap: 8px; }
-      .tab-btn { padding: 9px 12px; font-size: 0.92rem; }
-      .calendar-cell { min-height: 80px; padding: 8px; }
-    }
-  </style>
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s, transform 0.18s;
+}
+
+.card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.18); }
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gold);
+}
+
+.card.quiz::before { background: var(--blue); }
+.card.exam::before { background: var(--red); }
+.card.todo::before { background: var(--green); }
+.card.plan::before { background: var(--gold); }
+
+.card-meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.card h3 { font-size: 1rem; font-weight: 700; }
+.card p { color: var(--text-muted); font-size: 0.88rem; }
+.card .date { color: var(--gold); font-weight: 600; font-size: 0.85rem; }
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.card-actions button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: transparent;
+  transition: all 0.18s;
+}
+
+.card-actions button:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+.card-actions .danger { color: var(--red); border-color: rgba(248,113,113,0.25); }
+.card-actions .danger:hover { background: rgba(248,113,113,0.1); }
+
+/* ── Todo Items ── */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.todo-item:last-child { border-bottom: none; }
+
+.todo-item button {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.todo-item .done-btn { color: var(--green); }
+.todo-item .text-done { color: var(--text-muted); text-decoration: line-through; font-size: 0.88rem; }
+
+/* ── Empty State ── */
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Calendar ── */
+.calendar-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-head {
+  text-align: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 6px;
+}
+
+.calendar-cell {
+  min-height: 90px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255,255,255,0.02);
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.calendar-cell:hover { border-color: rgba(255,255,255,0.2); }
+.calendar-cell.empty { background: transparent; border-color: transparent; }
+.calendar-cell.today { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.calendar-cell .day { font-weight: 700; font-size: 0.9rem; }
+.calendar-cell .dots { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+.dot.quiz { background: var(--blue); }
+.dot.exam { background: var(--red); }
+.dot.plan { background: var(--orange); }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  width: min(560px, 100%);
+  background: #111827;
+  border: 1px solid var(--border-accent);
+  border-radius: 24px;
+  padding: 28px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+}
+
+.form-grid { display: grid; gap: 14px; }
+
+label { display: grid; gap: 6px; color: var(--text-muted); font-size: 0.85rem; }
+
+input, textarea, select {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: 10px;
+  font: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+textarea { min-height: 88px; resize: vertical; }
+input:focus, textarea:focus, select:focus { border-color: var(--gold); }
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.checkbox-label input { width: auto; }
+
+.hidden { display: none !important; }
+
+/* ══════════════════════════════════
+   TIMETABLE / TIME BLOCKS SECTION
+══════════════════════════════════ */
+.timetable-header {
+  margin-bottom: 24px;
+}
+
+.timetable-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.day-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.day-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.day-btn:hover { color: var(--text); }
+.day-btn.active { background: var(--gold); color: #0b0f1a; border-color: var(--gold); }
+.day-btn.is-today { border-color: var(--gold); color: var(--gold); }
+.day-btn.active.is-today { color: #0b0f1a; }
+
+.time-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.time-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.time-block:hover { border-color: rgba(255,255,255,0.16); }
+
+.time-block.block-complete {
+  border-color: rgba(52,211,153,0.3);
+  background: rgba(52,211,153,0.04);
+}
+
+.time-block.block-deepwork { border-left: 3px solid var(--gold); }
+.time-block.block-internship { border-left: 3px solid var(--blue); }
+.time-block.block-physical { border-left: 3px solid var(--green); }
+.time-block.block-evening { border-left: 3px solid var(--orange); }
+.time-block.block-class { border-left: 3px solid #a78bfa; }
+.time-block.block-rest { border-left: 3px solid var(--text-muted); }
+.time-block.block-weekend { border-left: 3px solid #f472b6; }
+
+.block-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.block-time {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  min-width: 110px;
+  font-weight: 600;
+}
+
+.block-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.block-badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid var(--border-accent);
+}
+
+.block-badge.badge-deepwork { background: rgba(245,200,66,0.12); color: var(--gold); border-color: rgba(245,200,66,0.3); }
+.block-badge.badge-class { background: rgba(167,139,250,0.12); color: #a78bfa; border-color: rgba(167,139,250,0.3); }
+.block-badge.badge-internship { background: rgba(96,165,250,0.12); color: var(--blue); border-color: rgba(96,165,250,0.3); }
+.block-badge.badge-physical { background: rgba(52,211,153,0.12); color: var(--green); border-color: rgba(52,211,153,0.3); }
+.block-badge.badge-evening { background: rgba(249,115,22,0.12); color: var(--orange); border-color: rgba(249,115,22,0.3); }
+.block-badge.badge-weekend { background: rgba(244,114,182,0.12); color: #f472b6; border-color: rgba(244,114,182,0.3); }
+.block-badge.badge-rest { background: rgba(255,255,255,0.06); color: var(--text-muted); border-color: var(--border); }
+
+.block-complete-toggle {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: transparent;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.block-complete-toggle:hover { border-color: var(--green); }
+.block-complete-toggle.done { background: var(--green); border-color: var(--green); color: #0b0f1a; }
+
+.block-expand-icon {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.time-block.expanded .block-expand-icon { transform: rotate(180deg); }
+
+.block-body {
+  display: none;
+  padding: 0 18px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.time-block.expanded .block-body { display: block; }
+
+.block-description {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 12px 0;
+  line-height: 1.55;
+}
+
+.block-tasks {
+  margin-top: 8px;
+}
+
+.block-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.block-task-item:last-child { border-bottom: none; }
+
+.task-check {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  color: transparent;
+  transition: all 0.18s;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.task-check:hover { border-color: var(--green); }
+.task-check.done { background: var(--green); border-color: var(--green); color: #0b0f1a; }
+
+.task-text {
+  font-size: 0.88rem;
+  flex: 1;
+  color: var(--text);
+  transition: color 0.18s;
+}
+
+.task-text.done { color: var(--text-muted); text-decoration: line-through; }
+
+.task-delete {
+  border: none;
+  background: transparent;
+  color: transparent;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.18s;
+}
+
+.block-task-item:hover .task-delete { color: var(--red); }
+
+.add-task-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.add-task-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.add-task-input:focus { border-color: var(--gold); }
+
+.add-task-btn {
+  background: var(--gold-dim);
+  border: 1px solid var(--border-accent);
+  color: var(--gold);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: all 0.18s;
+}
+
+.add-task-btn:hover { background: var(--gold); color: #0b0f1a; }
+
+.timetable-progress {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  min-width: 120px;
+}
+
+.progress-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--orange));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.progress-pct {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .app-shell { padding: 16px 12px 40px; }
+  .tab-btn { padding: 8px 14px; font-size: 0.82rem; }
+  .block-time { min-width: 80px; font-size: 0.68rem; }
+}
+</style>
 </head>
 <body>
-  <div id="lock-screen" class="lock-screen">
-    <div class="lock-card">
-      <div class="eyebrow">Protected planner</div>
-      <h1>Enter access code</h1>
-      <p>Only someone with the correct code can view this planner.</p>
-      <input id="unlock-input" type="password" autocomplete="current-password" placeholder="Enter code" />
-      <button id="unlock-btn" class="btn btn-primary" style="width: 100%; margin-top: 4px;">Unlock</button>
-      <p id="unlock-error" class="lock-error"></p>
+
+<!-- Gandhi Background Layer -->
+<div id="gandhi-bg"></div>
+
+<!-- ══════════ LOCK SCREEN ══════════ -->
+<div id="lock-screen" class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-eyebrow">🔐 Protected Planner</div>
+    <h1>Amar's Daily Planner</h1>
+    <div class="lock-quote" id="lock-quote-text">
+      "Be the change you wish to see in the world."
+      <cite>— Mahatma Gandhi</cite>
+    </div>
+    <input id="unlock-input" class="lock-input" type="password" placeholder="Enter access code" autocomplete="off" />
+    <button id="unlock-btn" class="btn-gold">Unlock Planner</button>
+    <div id="unlock-error" class="lock-error"></div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN APP ══════════ -->
+<div id="app-shell" class="app-shell hidden">
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-icon">📋</div>
+      <div>
+        <h1>My Planner</h1>
+        <span>3rd Year B.Tech CSE · SDE Prep</span>
+      </div>
+    </div>
+    <div class="header-date">
+      <strong id="header-date-str">—</strong>
+      <span id="header-time-str">—</span>
+    </div>
+  </header>
+
+  <!-- Gandhi Quote Banner -->
+  <div class="gandhi-banner">
+    <div class="gandhi-avatar">🕊️</div>
+    <div>
+      <div class="gandhi-quote-text" id="banner-quote-text">Loading quote…</div>
+      <div class="gandhi-quote-author" id="banner-quote-author">— Mahatma Gandhi</div>
     </div>
   </div>
 
-  <div id="app-shell" class="app-shell hidden">
-    <section class="hero">
-      <div class="hero-card">
-        <div class="eyebrow">✨ Static • Fast • Beautiful</div>
-        <h1>My Planner</h1>
-        <p>Bring your quizzes, exams, tasks, and monthly plans into one polished dashboard that works perfectly on GitHub Pages.</p>
-        <div class="pill-row">
-          <div class="pill">Local storage</div>
-          <div class="pill">No backend required</div>
-          <div class="pill">Responsive design</div>
+  <!-- Tabs -->
+  <nav class="tabs">
+    <button class="tab-btn active" data-view="dashboard">🏠 Dashboard</button>
+    <button class="tab-btn" data-view="timetable">⏱ Timetable</button>
+    <button class="tab-btn" data-view="quizzes">📝 Quizzes</button>
+    <button class="tab-btn" data-view="exams">🎓 Exams</button>
+    <button class="tab-btn" data-view="todos">✅ To-Do</button>
+    <button class="tab-btn" data-view="plans">📅 Plans</button>
+    <button class="tab-btn" data-view="calendar">🗓 Calendar</button>
+  </nav>
+
+  <main>
+
+    <!-- ── Dashboard ── -->
+    <section id="view-dashboard" class="view active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Quizzes</div>
+          <div class="value" id="count-quiz">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Exams</div>
+          <div class="value" id="count-exam">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">To-Do Lists</div>
+          <div class="value" id="count-todo">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Plans</div>
+          <div class="value" id="count-plan">0</div>
         </div>
       </div>
-      <div class="panel">
-        <div class="section-head">
-          <h2>Today at a glance</h2>
-          <div class="tiny" id="today-label">—</div>
+      <div class="section-head">
+        <h2>Upcoming</h2>
+        <button class="btn btn-primary btn-sm" data-action="add" data-kind="quiz">+ Add Item</button>
+      </div>
+      <div id="upcoming-list" class="cards-grid"></div>
+    </section>
+
+    <!-- ── Timetable ── -->
+    <section id="view-timetable" class="view">
+      <div class="timetable-header">
+        <div class="section-head" style="margin-bottom:4px;">
+          <h2>Daily Timetable</h2>
+          <button class="btn btn-secondary btn-sm" id="reset-day-btn">Reset Day</button>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="label">Quizzes</div>
-            <div class="value" id="count-quiz">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">Exams</div>
-            <div class="value" id="count-exam">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">Tasks</div>
-            <div class="value" id="count-todo">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="label">Plans</div>
-            <div class="value" id="count-plan">0</div>
-          </div>
+        <div class="timetable-subtitle">Track your time blocks, add tasks, mark as done. Data saves automatically.</div>
+      </div>
+
+      <div class="day-selector" id="day-selector"></div>
+
+      <div class="timetable-progress">
+        <div class="progress-label">Today's blocks done</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
         </div>
-        <div id="daily-quote" class="daily-quote">
-          <p id="quote-text" class="quote-text">—</p>
-          <p id="quote-author" class="quote-author">—</p>
+        <div class="progress-pct" id="progress-pct">0%</div>
+      </div>
+
+      <div class="time-blocks" id="time-blocks-container"></div>
+    </section>
+
+    <!-- ── Quizzes ── -->
+    <section id="view-quizzes" class="view">
+      <div class="section-head">
+        <h2>Quizzes</h2>
+        <button class="btn btn-primary btn-sm" data-action="add" data-kind="quiz">+ Add Quiz</button>
+      </div>
+      <div id="quiz-list" class="cards-grid"></div>
+    </section>
+
+    <!-- ── Exams ── -->
+    <section id="view-exams" class="view">
+      <div class="section-head">
+        <h2>Exams</h2>
+        <button class="btn btn-primary btn-sm" data-action="add" data-kind="exam">+ Add Exam</button>
+      </div>
+      <div id="exam-list" class="cards-grid"></div>
+    </section>
+
+    <!-- ── To-Do ── -->
+    <section id="view-todos" class="view">
+      <div class="section-head">
+        <h2>To-Do Lists</h2>
+        <button class="btn btn-primary btn-sm" data-action="add" data-kind="todo">+ New List</button>
+      </div>
+      <div id="todo-list" class="cards-grid"></div>
+    </section>
+
+    <!-- ── Plans ── -->
+    <section id="view-plans" class="view">
+      <div class="section-head">
+        <h2>Monthly Plans</h2>
+        <button class="btn btn-primary btn-sm" data-action="add" data-kind="plan">+ Add Plan</button>
+      </div>
+      <div id="plan-list" class="cards-grid"></div>
+    </section>
+
+    <!-- ── Calendar ── -->
+    <section id="view-calendar" class="view">
+      <div class="section-head">
+        <h2>Calendar</h2>
+      </div>
+      <div class="calendar-wrap">
+        <div class="calendar-header">
+          <button class="btn btn-secondary btn-sm" data-action="month-nav" data-dir="prev">◀</button>
+          <h3 id="calendar-month-title">Month</h3>
+          <button class="btn btn-secondary btn-sm" data-action="month-nav" data-dir="next">▶</button>
         </div>
-        <div class="tiny">Everything is saved automatically in your browser, so it stays available when you revisit the page.</div>
+        <div id="calendar-grid" class="calendar-grid"></div>
       </div>
     </section>
 
-    <nav class="tabs" aria-label="Planner sections">
-      <button class="tab-btn active" data-view="dashboard">Dashboard</button>
-      <button class="tab-btn" data-view="quizzes">Quizzes</button>
-      <button class="tab-btn" data-view="exams">Exams</button>
-      <button class="tab-btn" data-view="todos">To-Do</button>
-      <button class="tab-btn" data-view="plans">Plans</button>
-      <button class="tab-btn" data-view="calendar">Calendar</button>
-    </nav>
+  </main>
+</div>
 
-    <main>
-      <section id="view-dashboard" class="view active">
-        <div class="section-head">
-          <h2>Upcoming</h2>
-          <button class="btn btn-primary" data-action="add" data-kind="quiz">+ Add</button>
-        </div>
-        <div id="upcoming-list" class="cards-grid"></div>
-      </section>
-
-      <section id="view-quizzes" class="view">
-        <div class="section-head">
-          <h2>Quizzes</h2>
-          <button class="btn btn-primary" data-action="add" data-kind="quiz">+ Add Quiz</button>
-        </div>
-        <div id="quiz-list" class="cards-grid"></div>
-      </section>
-
-      <section id="view-exams" class="view">
-        <div class="section-head">
-          <h2>Exams</h2>
-          <button class="btn btn-primary" data-action="add" data-kind="exam">+ Add Exam</button>
-        </div>
-        <div id="exam-list" class="cards-grid"></div>
-      </section>
-
-      <section id="view-todos" class="view">
-        <div class="section-head">
-          <h2>To-Do Lists</h2>
-          <button class="btn btn-primary" data-action="add" data-kind="todo">+ New List</button>
-        </div>
-        <div id="todo-list" class="cards-grid"></div>
-      </section>
-
-      <section id="view-plans" class="view">
-        <div class="section-head">
-          <h2>Monthly Plans</h2>
-          <button class="btn btn-primary" data-action="add" data-kind="plan">+ Add Plan</button>
-        </div>
-        <div id="plan-list" class="cards-grid"></div>
-      </section>
-
-      <section id="view-calendar" class="view">
-        <div class="section-head">
-          <h2>Calendar</h2>
-          <div class="pill" id="calendar-caption">Loading…</div>
-        </div>
-        <div class="panel">
-          <div class="calendar-header">
-            <button class="btn btn-secondary" data-action="month-nav" data-dir="prev">◀</button>
-            <h3 id="calendar-month-title">Month</h3>
-            <button class="btn btn-secondary" data-action="month-nav" data-dir="next">▶</button>
-          </div>
-          <div id="calendar-grid" class="calendar-grid"></div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal">
-      <h3 id="modal-title">Add item</h3>
-      <div class="form-grid">
-        <div id="field-title-wrap">
-          <label>Title
-            <input id="field-title" type="text" placeholder="Entry title" />
-          </label>
-        </div>
-        <div id="field-date-wrap">
-          <label>Date
-            <input id="field-date" type="date" />
-          </label>
-        </div>
-        <div id="field-completed-wrap" class="hidden">
-          <label class="checkbox-label">
-            <input id="field-completed" type="checkbox" />
-            Quiz completed
-          </label>
-        </div>
-        <div id="field-score-wrap" class="hidden">
-          <label>Score
-            <input id="field-score" type="number" min="0" step="1" placeholder="18" />
-          </label>
-        </div>
-        <div id="field-total-wrap" class="hidden">
-          <label>Total marks
-            <input id="field-total" type="number" min="1" step="1" placeholder="20" />
-          </label>
-        </div>
-        <div id="field-month-wrap" class="hidden">
-          <label>Month
-            <input id="field-month" type="month" />
-          </label>
-        </div>
-        <div id="field-note-wrap">
-          <label>Notes
-            <textarea id="field-note" placeholder="Add any context you need"></textarea>
-          </label>
-        </div>
-        <div id="field-items-wrap" class="hidden">
-          <label>Checklist items (one per line)
-            <textarea id="field-items" placeholder="[ ] Review slides&#10;[x] Finish notes"></textarea>
-          </label>
-        </div>
+<!-- ══════════ MODAL ══════════ -->
+<div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 id="modal-title">Add Item</h3>
+    <div class="form-grid">
+      <div id="field-title-wrap">
+        <label>Title<input id="field-title" type="text" placeholder="Entry title" /></label>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" data-action="close-modal">Cancel</button>
-        <button class="btn btn-primary" data-action="save-item">Save</button>
+      <div id="field-date-wrap">
+        <label>Date<input id="field-date" type="date" /></label>
+      </div>
+      <div id="field-completed-wrap" class="hidden">
+        <label class="checkbox-label">
+          <input id="field-completed" type="checkbox" />
+          Quiz completed
+        </label>
+      </div>
+      <div id="field-score-wrap" class="hidden">
+        <label>Score<input id="field-score" type="number" min="0" step="1" placeholder="18" /></label>
+      </div>
+      <div id="field-total-wrap" class="hidden">
+        <label>Total marks<input id="field-total" type="number" min="1" step="1" placeholder="20" /></label>
+      </div>
+      <div id="field-month-wrap" class="hidden">
+        <label>Month<input id="field-month" type="month" /></label>
+      </div>
+      <div id="field-note-wrap">
+        <label>Notes<textarea id="field-note" placeholder="Any context or details"></textarea></label>
+      </div>
+      <div id="field-items-wrap" class="hidden">
+        <label>Checklist items (one per line)
+          <textarea id="field-items" placeholder="[ ] Review slides&#10;[x] Finish notes"></textarea>
+        </label>
       </div>
     </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" data-action="close-modal">Cancel</button>
+      <button class="btn btn-primary" data-action="save-item">Save</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    const STORAGE_KEY = 'my-planner-state-v1';
-    const LOCK_CODE = 'imthebest';
-    const DAILY_QUOTES = [
-      { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
-      { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-      { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
-      { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
-      { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
-      { text: "The only impossible journey is the one you never begin.", author: "Tony Robbins" },
-      { text: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
-      { text: "Happiness is not something ready made. It comes from your own actions.", author: "Dalai Lama" },
-      { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
-      { text: "Your limitation—it's only your imagination.", author: "Unknown" },
-      { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
-      { text: "Sometimes we're tested not to show our weaknesses, but to discover our strengths.", author: "Unknown" },
-      { text: "Everything you want is on the other side of fear.", author: "George Addair" },
-      { text: "Success doesn't just find you. You have to go out and get it.", author: "Unknown" },
-      { text: "Great things never come from comfort zones.", author: "Unknown" },
-      { text: "Dream it. Wish it. Do it.", author: "Unknown" },
-      { text: "Success is walking from failure to failure with no loss of enthusiasm.", author: "Winston Churchill" },
-      { text: "You learn more from failure than from success.", author: "Unknown" },
-      { text: "It's not whether you got knocked down, it's whether you get up.", author: "Vince Lombardi" },
-      { text: "If you are working on something that you really care about, you don't have to be pushed. The vision pulls you.", author: "Steve Jobs" }
-    ];
-    const lockScreen = document.getElementById('lock-screen');
-    const appShell = document.getElementById('app-shell');
-    const unlockInput = document.getElementById('unlock-input');
-    const unlockButton = document.getElementById('unlock-btn');
-    const unlockError = document.getElementById('unlock-error');
+<script>
+// ══════════════════════════════════════════════
+// GANDHI QUOTES
+// ══════════════════════════════════════════════
+const GANDHI_QUOTES = [
+  { text: "Be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+  { text: "The future depends on what we do in the present.", author: "Mahatma Gandhi" },
+  { text: "Strength does not come from physical capacity. It comes from an indomitable will.", author: "Mahatma Gandhi" },
+  { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+  { text: "An eye for an eye only ends up making the whole world blind.", author: "Mahatma Gandhi" },
+  { text: "The best way to find yourself is to lose yourself in the service of others.", author: "Mahatma Gandhi" },
+  { text: "First they ignore you, then they laugh at you, then they fight you, then you win.", author: "Mahatma Gandhi" },
+  { text: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+  { text: "A man is but the product of his thoughts; what he thinks, he becomes.", author: "Mahatma Gandhi" },
+  { text: "The weak can never forgive. Forgiveness is the attribute of the strong.", author: "Mahatma Gandhi" },
+  { text: "Freedom is not worth having if it does not include the freedom to make mistakes.", author: "Mahatma Gandhi" },
+  { text: "Happiness is when what you think, what you say, and what you do are in harmony.", author: "Mahatma Gandhi" },
+  { text: "In a gentle way, you can shake the world.", author: "Mahatma Gandhi" },
+  { text: "It always seems impossible until it's done.", author: "Mahatma Gandhi" },
+  { text: "The difference between what we do and what we are capable of doing would suffice to solve most of the world's problems.", author: "Mahatma Gandhi" },
+  { text: "Nobody can hurt me without my permission.", author: "Mahatma Gandhi" },
+  { text: "The greatness of a nation can be judged by the way its animals are treated.", author: "Mahatma Gandhi" },
+  { text: "Be congruent, be authentic, be your true self.", author: "Mahatma Gandhi" },
+  { text: "Glory lies in the attempt to reach one's goal and not in reaching it.", author: "Mahatma Gandhi" },
+  { text: "Action expresses priorities.", author: "Mahatma Gandhi" },
+  { text: "Your beliefs become your thoughts, your thoughts become your words, your words become your actions.", author: "Mahatma Gandhi" },
+];
 
-    function getDailyQuote() {
-      const today = new Date().toDateString();
-      const quoteIndex = today.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % DAILY_QUOTES.length;
-      return DAILY_QUOTES[quoteIndex];
+function getDailyGandhiQuote() {
+  const seed = new Date().toDateString().split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return GANDHI_QUOTES[seed % GANDHI_QUOTES.length];
+}
+
+// ══════════════════════════════════════════════
+// TIMETABLE DATA
+// ══════════════════════════════════════════════
+const WEEKDAY_BLOCKS = [
+  { id: 'wake',       time: '5:30 – 6:00 AM',    title: 'Wake Up & Morning Routine',  desc: 'Freshen up, get ready for the day. Keep it calm and intentional.',  type: 'rest',       badge: 'rest',       badgeLabel: 'Routine' },
+  { id: 'deepwork',   time: '6:00 – 9:00 AM',    title: 'Deep Work Block (3 hrs)',     desc: 'DSA / CS fundamentals / coding practice — your sharpest hours. Protect this no matter what.', type: 'deepwork',   badge: 'deepwork',   badgeLabel: '🔥 Priority' },
+  { id: 'breakfast',  time: '9:00 – 9:30 AM',    title: 'Breakfast',                  desc: 'Eat properly. No screens during meals.',                             type: 'rest',       badge: 'rest',       badgeLabel: 'Break' },
+  { id: 'classes',    time: '9:30 AM – 3:30 PM', title: 'College Classes',             desc: 'Attend all lectures: CP, Full Stack Dev, Software Eng, Aptitude, AI & Soft Computing.', type: 'class',      badge: 'class',      badgeLabel: 'College' },
+  { id: 'snack',      time: '3:30 – 4:00 PM',    title: 'Snack Break',                desc: 'Breathing room. Rest your eyes, hydrate.',                          type: 'rest',       badge: 'rest',       badgeLabel: 'Break' },
+  { id: 'internship', time: '4:00 – 6:30 PM',    title: 'SNA Internship Work',        desc: 'Social Network Analysis research. Focused, distraction-free session.', type: 'internship', badge: 'internship', badgeLabel: 'Internship' },
+  { id: 'gym',        time: '6:30 – 8:00 PM',    title: 'Physical Activity',          desc: 'Gym / walk / sport. Non-negotiable — keeps evening focus sharp.',    type: 'physical',   badge: 'physical',   badgeLabel: 'Health' },
+  { id: 'dinner',     time: '8:00 – 9:00 PM',    title: 'Dinner & Downtime',          desc: 'Eat well, decompress. Light reading or family time.',                type: 'rest',       badge: 'rest',       badgeLabel: 'Downtime' },
+  { id: 'evening',    time: '9:00 – 10:30 PM',   title: 'Evening Study Block (2 hrs)',desc: 'Mon/Wed/Fri → Mock interviews, system design, aptitude, projects. Tue/Thu → Signal Clear (script, record, edit).', type: 'evening', badge: 'evening', badgeLabel: 'Evening' },
+  { id: 'wind',       time: '10:30 – 11:00 PM',  title: 'Wind Down',                  desc: 'No screens. Journaling or light reading. Prepare for sleep.',        type: 'rest',       badge: 'rest',       badgeLabel: 'Wind Down' },
+  { id: 'sleep',      time: '11:00 PM',           title: 'Sleep (Target 7.5 hrs)',      desc: 'Sleep is non-negotiable. No negotiations.',                         type: 'rest',       badge: 'rest',       badgeLabel: 'Sleep' },
+];
+
+const WEEKEND_BLOCKS = [
+  { id: 'morning',    time: '6:00 – 9:00 AM',    title: 'Morning Deep Work',          desc: 'Sat: Timed contest or mock interview practice. Sun: Light review, plan the week ahead.', type: 'deepwork', badge: 'deepwork', badgeLabel: '🔥 Priority' },
+  { id: 'signal',     time: '9:30 AM – 12:30 PM',title: 'Signal Clear Session',       desc: 'Sat: Full record + edit one video. Keep content consistent.',       type: 'weekend',    badge: 'weekend',    badgeLabel: 'Signal Clear' },
+  { id: 'afternoon',  time: '12:30 – 3:30 PM',   title: 'Resume & Applications',      desc: 'Sat: Record more content. Sun: Resume, off-campus applications, revise weak topics.', type: 'evening', badge: 'evening', badgeLabel: 'Career' },
+  { id: 'gym-w',      time: '4:00 – 5:30 PM',    title: 'Physical Activity',          desc: 'Gym / walk / sport. Same as weekdays — non-negotiable.',            type: 'physical',   badge: 'physical',   badgeLabel: 'Health' },
+  { id: 'rest',       time: '5:30 PM onwards',    title: 'Personal Time & Rest',       desc: 'Personal time, errands, family, rest. Recharge for the week.',      type: 'rest',       badge: 'rest',       badgeLabel: 'Rest' },
+];
+
+// ══════════════════════════════════════════════
+// STATE & STORAGE
+// ══════════════════════════════════════════════
+const STORAGE_KEY   = 'my-planner-state-v2';
+const TT_KEY        = 'my-planner-timetable-v1';
+const LOCK_CODE     = 'imthebest';
+const DAY_NAMES     = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_SHORT     = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+const state = { quizzes: [], exams: [], todos: [], plans: [] };
+let ttState = {};    // { 'YYYY-MM-DD': { blockId: { done: bool, tasks: [{id,text,done}] } } }
+let currentView     = 'dashboard';
+let modalState      = { open: false, kind: 'quiz', editingId: null };
+let calendarMonth   = new Date();
+let selectedDay     = new Date(); // for timetable
+
+// ── Lock / Unlock ──
+const lockScreen    = document.getElementById('lock-screen');
+const appShell      = document.getElementById('app-shell');
+const unlockInput   = document.getElementById('unlock-input');
+const unlockBtn     = document.getElementById('unlock-btn');
+const unlockError   = document.getElementById('unlock-error');
+
+function unlockPlanner() {
+  if (unlockInput.value.trim() === LOCK_CODE) {
+    lockScreen.classList.add('hidden');
+    appShell.classList.remove('hidden');
+    unlockInput.value = '';
+    unlockError.textContent = '';
+    onAppLoad();
+  } else {
+    unlockError.textContent = 'Incorrect code. Try again.';
+    unlockInput.focus();
+  }
+}
+
+unlockBtn.addEventListener('click', unlockPlanner);
+unlockInput.addEventListener('keydown', e => { if (e.key === 'Enter') unlockPlanner(); });
+
+// Set lock screen quote
+(function() {
+  const q = getDailyGandhiQuote();
+  document.getElementById('lock-quote-text').innerHTML =
+    `"${q.text}" <cite>— ${q.author}</cite>`;
+})();
+
+// ── App Init ──
+function onAppLoad() {
+  loadState();
+  loadTTState();
+  setupClock();
+  displayGandhiBanner();
+  renderAll();
+  renderTimetable();
+}
+
+function setupClock() {
+  function tick() {
+    const now = new Date();
+    const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById('header-date-str').textContent = now.toLocaleDateString('en-IN', opts);
+    document.getElementById('header-time-str').textContent = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+function displayGandhiBanner() {
+  const q = getDailyGandhiQuote();
+  document.getElementById('banner-quote-text').textContent = `"${q.text}"`;
+  document.getElementById('banner-quote-author').textContent = `— ${q.author}`;
+}
+
+// ── Tabs ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === `view-${view}`));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (view === 'timetable') renderTimetable();
+}
+
+// ── Global click handler ──
+document.addEventListener('click', e => {
+  const a = e.target.dataset.action;
+  if (!a) return;
+  if (a === 'add')         { openModal(e.target.dataset.kind, null); return; }
+  if (a === 'edit')        { openModal(e.target.dataset.kind, e.target.dataset.id); return; }
+  if (a === 'delete')      { deleteItem(e.target.dataset.kind, e.target.dataset.id); return; }
+  if (a === 'toggle-todo') { toggleTodoItem(e.target.dataset.listId, e.target.dataset.itemId); return; }
+  if (a === 'month-nav')   { moveCalendar(e.target.dataset.dir); return; }
+  if (a === 'close-modal') { closeModal(); return; }
+  if (a === 'save-item')   { saveModalItem(); return; }
+});
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalState.open) closeModal(); });
+
+// ══════════════════════════════════════════════
+// TIMETABLE LOGIC
+// ══════════════════════════════════════════════
+function dateKey(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function loadTTState() {
+  try {
+    const s = localStorage.getItem(TT_KEY);
+    ttState = s ? JSON.parse(s) : {};
+  } catch { ttState = {}; }
+}
+
+function saveTTState() {
+  localStorage.setItem(TT_KEY, JSON.stringify(ttState));
+}
+
+function getBlockState(dayKey, blockId) {
+  if (!ttState[dayKey]) ttState[dayKey] = {};
+  if (!ttState[dayKey][blockId]) ttState[dayKey][blockId] = { done: false, tasks: [] };
+  return ttState[dayKey][blockId];
+}
+
+function uid() {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+}
+
+function renderTimetable() {
+  const container = document.getElementById('time-blocks-container');
+  const selector  = document.getElementById('day-selector');
+  const today     = new Date();
+  const todayKey  = dateKey(today);
+  const selKey    = dateKey(selectedDay);
+  const isWeekend = selectedDay.getDay() === 0 || selectedDay.getDay() === 6;
+  const blocks    = isWeekend ? WEEKEND_BLOCKS : WEEKDAY_BLOCKS;
+  const dayKey    = selKey;
+
+  // Build day selector (today ± 3 days)
+  selector.innerHTML = '';
+  for (let offset = -3; offset <= 3; offset++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + offset);
+    const dk  = dateKey(d);
+    const btn = document.createElement('button');
+    btn.className = 'day-btn' + (dk === selKey ? ' active' : '') + (dk === todayKey ? ' is-today' : '');
+    btn.innerHTML = `<span style="display:block;font-size:0.65rem;opacity:0.7">${DAY_SHORT[d.getDay()]}</span>${d.getDate()}`;
+    btn.title = DAY_NAMES[d.getDay()];
+    btn.addEventListener('click', () => { selectedDay = d; renderTimetable(); });
+    selector.appendChild(btn);
+  }
+
+  // Progress
+  const total = blocks.length;
+  const done  = blocks.filter(b => getBlockState(dayKey, b.id).done).length;
+  const pct   = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+
+  // Blocks
+  container.innerHTML = '';
+  blocks.forEach(block => {
+    const bs  = getBlockState(dayKey, block.id);
+    const div = document.createElement('div');
+    div.className = `time-block block-${block.type}${bs.done ? ' block-complete' : ''}`;
+    div.id = `block-${block.id}`;
+
+    const taskHTML = bs.tasks.map(t => `
+      <div class="block-task-item">
+        <button class="task-check${t.done ? ' done' : ''}" data-tt-action="check-task" data-block="${block.id}" data-task="${t.id}">${t.done ? '✓' : ''}</button>
+        <span class="task-text${t.done ? ' done' : ''}">${escHTML(t.text)}</span>
+        <button class="task-delete" data-tt-action="delete-task" data-block="${block.id}" data-task="${t.id}">✕</button>
+      </div>`).join('');
+
+    div.innerHTML = `
+      <div class="block-header" data-tt-action="toggle-expand" data-block="${block.id}">
+        <span class="block-time">${block.time}</span>
+        <span class="block-title">${block.title}</span>
+        <span class="block-badge badge-${block.badge}">${block.badgeLabel}</span>
+        <button class="block-complete-toggle${bs.done ? ' done' : ''}" data-tt-action="toggle-done" data-block="${block.id}">${bs.done ? '✓' : ''}</button>
+        <span class="block-expand-icon">▼</span>
+      </div>
+      <div class="block-body">
+        <div class="block-description">${block.desc}</div>
+        <div class="block-tasks">${taskHTML}</div>
+        <div class="add-task-row">
+          <input class="add-task-input" type="text" placeholder="Add a task for this block…" data-block="${block.id}" id="task-input-${block.id}" />
+          <button class="add-task-btn" data-tt-action="add-task" data-block="${block.id}">Add</button>
+        </div>
+      </div>`;
+    container.appendChild(div);
+  });
+
+  // Reset day button
+  document.getElementById('reset-day-btn').onclick = () => {
+    if (confirm('Reset all block completions for this day? Custom tasks will be kept.')) {
+      const dk2 = dateKey(selectedDay);
+      if (ttState[dk2]) {
+        Object.keys(ttState[dk2]).forEach(bid => { ttState[dk2][bid].done = false; });
+      }
+      saveTTState();
+      renderTimetable();
     }
+  };
+}
 
-    function displayDailyQuote() {
-      const quote = getDailyQuote();
-      const quoteText = document.getElementById('quote-text');
-      const quoteAuthor = document.getElementById('quote-author');
-      if (quoteText && quoteAuthor) {
-        quoteText.textContent = `"${quote.text}"`;
-        quoteAuthor.textContent = `— ${quote.author}`;
-      }
-    }
+// Timetable event delegation
+document.addEventListener('click', e => {
+  const a = e.target.dataset.ttAction;
+  if (!a) return;
+  const blockId = e.target.dataset.block;
+  const taskId  = e.target.dataset.task;
+  const dk      = dateKey(selectedDay);
 
-    function unlockPlanner() {
-      if (unlockInput.value.trim() === LOCK_CODE) {
-        lockScreen.classList.add('hidden');
-        appShell.classList.remove('hidden');
-        unlockInput.value = '';
-        unlockError.textContent = '';
-        displayDailyQuote();
-      } else {
-        unlockError.textContent = 'Incorrect code. Please try again.';
-      }
-    }
+  if (a === 'toggle-expand') {
+    const bl = document.getElementById(`block-${blockId}`);
+    if (bl) bl.classList.toggle('expanded');
+    return;
+  }
+  if (a === 'toggle-done') {
+    const bs = getBlockState(dk, blockId);
+    bs.done = !bs.done;
+    saveTTState();
+    renderTimetable();
+    return;
+  }
+  if (a === 'check-task') {
+    const bs   = getBlockState(dk, blockId);
+    const task = bs.tasks.find(t => t.id === taskId);
+    if (task) { task.done = !task.done; saveTTState(); renderTimetable(); }
+    return;
+  }
+  if (a === 'delete-task') {
+    const bs = getBlockState(dk, blockId);
+    bs.tasks = bs.tasks.filter(t => t.id !== taskId);
+    saveTTState();
+    renderTimetable();
+    return;
+  }
+  if (a === 'add-task') {
+    const inp  = document.getElementById(`task-input-${blockId}`);
+    const text = inp ? inp.value.trim() : '';
+    if (!text) return;
+    const bs = getBlockState(dk, blockId);
+    bs.tasks.push({ id: uid(), text, done: false });
+    saveTTState();
+    renderTimetable();
+    // Re-expand block and focus input
+    const bl = document.getElementById(`block-${blockId}`);
+    if (bl) bl.classList.add('expanded');
+    return;
+  }
+});
 
-    unlockButton.addEventListener('click', unlockPlanner);
-    unlockInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') unlockPlanner();
-    });
+// Allow Enter key in task input
+document.addEventListener('keydown', e => {
+  if (e.target.classList.contains('add-task-input') && e.key === 'Enter') {
+    const blockId = e.target.dataset.block;
+    const btn = document.querySelector(`.add-task-btn[data-block="${blockId}"]`);
+    if (btn) btn.click();
+  }
+});
 
-    const state = {
-      quizzes: [],
-      exams: [],
-      todos: [],
-      plans: []
-    };
+// Allow clicking block-header (not the button inside) to expand
+document.addEventListener('click', e => {
+  if (e.target.dataset.ttAction === 'toggle-expand' ||
+      e.target.closest('[data-tt-action="toggle-expand"]')) {
+    const hdr = e.target.closest('.block-header') || (e.target.dataset.ttAction === 'toggle-expand' ? e.target : null);
+    if (!hdr) return;
+    // don't expand if clicking the done button
+    if (e.target.dataset.ttAction === 'toggle-done') return;
+    const blockId = hdr.dataset.block || hdr.querySelector('[data-block]')?.dataset.block;
+    if (!blockId) return;
+    const bl = document.getElementById(`block-${blockId}`);
+    if (bl) bl.classList.toggle('expanded');
+  }
+});
 
-    let currentView = 'dashboard';
-    let modalState = { open: false, kind: 'quiz', editingId: null };
-    let calendarMonth = new Date();
+// ══════════════════════════════════════════════
+// STATE: LOAD / SAVE / SEED
+// ══════════════════════════════════════════════
+function loadState() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (!s) { seedSampleData(); return; }
+    const p = JSON.parse(s);
+    state.quizzes = Array.isArray(p.quizzes) ? p.quizzes : [];
+    state.exams   = Array.isArray(p.exams)   ? p.exams   : [];
+    state.todos   = Array.isArray(p.todos)   ? p.todos   : [];
+    state.plans   = Array.isArray(p.plans)   ? p.plans   : [];
+  } catch { seedSampleData(); }
+}
 
-    const els = {
-      todayLabel: document.getElementById('today-label'),
-      countQuiz: document.getElementById('count-quiz'),
-      countExam: document.getElementById('count-exam'),
-      countTodo: document.getElementById('count-todo'),
-      countPlan: document.getElementById('count-plan'),
-      upcomingList: document.getElementById('upcoming-list'),
-      quizList: document.getElementById('quiz-list'),
-      examList: document.getElementById('exam-list'),
-      todoList: document.getElementById('todo-list'),
-      planList: document.getElementById('plan-list'),
-      calendarGrid: document.getElementById('calendar-grid'),
-      calendarCaption: document.getElementById('calendar-caption'),
-      calendarMonthTitle: document.getElementById('calendar-month-title'),
-      modalOverlay: document.getElementById('modal-overlay'),
-      modalTitle: document.getElementById('modal-title'),
-      fieldTitle: document.getElementById('field-title'),
-      fieldDate: document.getElementById('field-date'),
-      fieldCompleted: document.getElementById('field-completed'),
-      fieldScore: document.getElementById('field-score'),
-      fieldTotal: document.getElementById('field-total'),
-      fieldMonth: document.getElementById('field-month'),
-      fieldNote: document.getElementById('field-note'),
-      fieldItems: document.getElementById('field-items'),
-      fieldTitleWrap: document.getElementById('field-title-wrap'),
-      fieldDateWrap: document.getElementById('field-date-wrap'),
-      fieldCompletedWrap: document.getElementById('field-completed-wrap'),
-      fieldScoreWrap: document.getElementById('field-score-wrap'),
-      fieldTotalWrap: document.getElementById('field-total-wrap'),
-      fieldMonthWrap: document.getElementById('field-month-wrap'),
-      fieldNoteWrap: document.getElementById('field-note-wrap'),
-      fieldItemsWrap: document.getElementById('field-items-wrap')
-    };
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        switchView(btn.dataset.view);
-      });
-    });
+function seedSampleData() {
+  state.quizzes = [
+    { id: uid(), title: 'DSA Quiz – Strings', date: '2026-07-02', notes: 'Focus on sliding window + hashing.', completed: false, score: null, totalMarks: 20 },
+  ];
+  state.exams = [
+    { id: uid(), title: 'CSE302 Competitive Programming', date: '2026-07-15', notes: 'Review dynamic programming and graphs.' },
+  ];
+  state.todos = [
+    { id: uid(), title: 'Week 1 Tasks', notes: 'Start of semester sprint.', items: [
+      { id: uid(), text: 'Solve 5 LeetCode string problems', done: false },
+      { id: uid(), text: 'Set up Node.js project', done: false },
+    ]},
+  ];
+  state.plans = [
+    { id: uid(), title: 'July Focus', month: '2026-07', notes: 'DSA: strings & arrays. Begin Express.js.' },
+  ];
+  saveState();
+}
 
-    document.addEventListener('click', (event) => {
-      const action = event.target.dataset.action;
-      if (!action) return;
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function renderAll() {
+  updateCounts();
+  renderUpcoming();
+  renderList('quiz-list', state.quizzes, 'quiz');
+  renderList('exam-list', state.exams, 'exam');
+  renderTodoList();
+  renderList('plan-list', state.plans, 'plan');
+  renderCalendar();
+}
 
-      if (action === 'add') {
-        openModal(event.target.dataset.kind, null);
-        return;
-      }
+function updateCounts() {
+  document.getElementById('count-quiz').textContent = state.quizzes.length;
+  document.getElementById('count-exam').textContent = state.exams.length;
+  document.getElementById('count-todo').textContent = state.todos.length;
+  document.getElementById('count-plan').textContent = state.plans.length;
+}
 
-      if (action === 'edit') {
-        openModal(event.target.dataset.kind, event.target.dataset.id);
-        return;
-      }
+function renderUpcoming() {
+  const el    = document.getElementById('upcoming-list');
+  const today = new Date().toISOString().split('T')[0];
+  const items = [
+    ...state.quizzes.map(q => ({ ...q, kind: 'quiz' })),
+    ...state.exams.map(e => ({ ...e, kind: 'exam' })),
+  ].filter(i => i.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
 
-      if (action === 'delete') {
-        deleteItem(event.target.dataset.kind, event.target.dataset.id);
-        return;
-      }
+  el.innerHTML = items.length
+    ? items.map(item => cardHTML(item, item.kind)).join('')
+    : emptyHTML('No upcoming items. Add a quiz or exam to get started.');
+}
 
-      if (action === 'toggle-todo') {
-        toggleTodoItem(event.target.dataset.listId, event.target.dataset.itemId);
-        return;
-      }
+function renderList(elId, arr, kind) {
+  const el = document.getElementById(elId);
+  el.innerHTML = arr.length
+    ? arr.map(item => cardHTML(item, kind)).join('')
+    : emptyHTML(`No ${kind}s yet. Add one above.`);
+}
 
-      if (action === 'month-nav') {
-        moveCalendar(event.target.dataset.dir);
-        return;
-      }
+function cardHTML(item, kind) {
+  const kindLabels = { quiz: '📝 Quiz', exam: '🎓 Exam', plan: '📅 Plan', todo: '✅ To-Do' };
+  const extra = kind === 'quiz' && item.completed
+    ? `<div style="color:var(--green);font-size:0.82rem">✅ Done${item.score != null ? ` · ${item.score}/${item.totalMarks}` : ''}</div>`
+    : '';
+  const dateStr = item.date ? `<div class="date">📅 ${item.date}</div>` : item.month ? `<div class="date">📅 ${item.month}</div>` : '';
+  return `
+    <div class="card ${kind}">
+      <div class="card-meta">${kindLabels[kind]}</div>
+      <h3>${escHTML(item.title)}</h3>
+      ${dateStr}
+      ${item.notes ? `<p>${escHTML(item.notes)}</p>` : ''}
+      ${extra}
+      <div class="card-actions">
+        <button data-action="edit" data-kind="${kind}" data-id="${item.id}">Edit</button>
+        <button class="danger" data-action="delete" data-kind="${kind}" data-id="${item.id}">Delete</button>
+      </div>
+    </div>`;
+}
 
-      if (action === 'close-modal') {
-        closeModal();
-        return;
-      }
+function renderTodoList() {
+  const el = document.getElementById('todo-list');
+  if (!state.todos.length) { el.innerHTML = emptyHTML('No to-do lists yet.'); return; }
+  el.innerHTML = state.todos.map(list => {
+    const itemsHTML = list.items.length
+      ? list.items.map(it => `
+          <div class="todo-item">
+            <button class="${it.done ? 'done-btn' : ''}" data-action="toggle-todo" data-list-id="${list.id}" data-item-id="${it.id}">${it.done ? '✅' : '⬜'}</button>
+            <span class="${it.done ? 'text-done' : ''}">${escHTML(it.text)}</span>
+          </div>`).join('')
+      : '<div style="color:var(--text-muted);font-size:0.85rem">No items.</div>';
+    return `
+      <div class="card todo">
+        <div class="card-meta">✅ To-Do List</div>
+        <h3>${escHTML(list.title)}</h3>
+        ${list.notes ? `<p>${escHTML(list.notes)}</p>` : ''}
+        <div style="margin-top:8px">${itemsHTML}</div>
+        <div class="card-actions">
+          <button data-action="edit" data-kind="todo" data-id="${list.id}">Edit</button>
+          <button class="danger" data-action="delete" data-kind="todo" data-id="${list.id}">Delete</button>
+        </div>
+      </div>`;
+  }).join('');
+}
 
-      if (action === 'save-item') {
-        saveModalItem();
-      }
-    });
+function emptyHTML(msg) {
+  return `<div class="empty-state" style="grid-column:1/-1">${msg}</div>`;
+}
 
-    els.modalOverlay.addEventListener('click', (event) => {
-      if (event.target === els.modalOverlay) closeModal();
-    });
+function escHTML(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && modalState.open) closeModal();
-    });
+// ── Calendar ──
+function renderCalendar() {
+  const y   = calendarMonth.getFullYear();
+  const m   = calendarMonth.getMonth();
+  const title = calendarMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+  document.getElementById('calendar-month-title').textContent = title;
 
-    function uid() {
-      return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-    }
+  const allItems = [
+    ...state.quizzes.map(q => ({ date: q.date, kind: 'quiz' })),
+    ...state.exams.map(e => ({ date: e.date, kind: 'exam' })),
+    ...state.plans.map(p => ({ date: p.month ? p.month + '-01' : null, kind: 'plan' })),
+  ].filter(i => i.date);
 
-    function loadState() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) {
-          seedSampleData();
-          return;
-        }
-        const parsed = JSON.parse(saved);
-        state.quizzes = Array.isArray(parsed.quizzes) ? parsed.quizzes.map(normalizeQuiz) : [];
-        state.exams = Array.isArray(parsed.exams) ? parsed.exams : [];
-        state.todos = Array.isArray(parsed.todos) ? parsed.todos : [];
-        state.plans = Array.isArray(parsed.plans) ? parsed.plans : [];
-      } catch (error) {
-        console.error('Failed to load planner state', error);
-        seedSampleData();
-      }
-    }
+  const grid = document.getElementById('calendar-grid');
+  const heads = DAY_SHORT.map(d => `<div class="calendar-head">${d}</div>`).join('');
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const todayStr = new Date().toISOString().split('T')[0];
 
-    function seedSampleData() {
-      state.quizzes = [
-        { id: uid(), title: 'Math Quiz #3', date: '2026-06-24', notes: 'Focus on derivatives and integrals.', completed: true, score: 18, totalMarks: 20 },
-        { id: uid(), title: 'Reading Check', date: '2026-06-28', notes: 'Bring notes from Chapter 4.', completed: false, score: null, totalMarks: null }
-      ];
-      state.exams = [
-        { id: uid(), title: 'Physics Midterm', date: '2026-06-30', notes: 'Review circuits and waves.' }
-      ];
-      state.todos = [
-        { id: uid(), title: 'Study Sprint', notes: 'A calm plan for the next two days.', items: [{ id: uid(), text: 'Create flashcards', done: true }, { id: uid(), text: 'Revise formulas', done: false }] }
-      ];
-      state.plans = [
-        { id: uid(), title: 'June Focus', month: '2026-06', notes: 'Finish major assignments and prepare for finals.' }
-      ];
-      saveState();
-    }
+  let cells = heads;
+  for (let i = 0; i < firstDay; i++) cells += `<div class="calendar-cell empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds     = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = ds === todayStr;
+    const dots   = allItems.filter(i => i.date === ds)
+      .map(i => `<span class="dot ${i.kind}"></span>`).join('');
+    cells += `<div class="calendar-cell${isToday ? ' today' : ''}">
+      <div class="day">${d}</div>
+      <div class="dots">${dots}</div>
+    </div>`;
+  }
+  grid.innerHTML = cells;
+}
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+function moveCalendar(dir) {
+  calendarMonth.setMonth(calendarMonth.getMonth() + (dir === 'next' ? 1 : -1));
+  renderCalendar();
+}
 
-    function switchView(view) {
-      currentView = view;
-      document.querySelectorAll('.view').forEach(section => section.classList.toggle('active', section.id === `view-${view}`));
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
-    }
+// ── Modal ──
+const mEls = {
+  overlay:       document.getElementById('modal-overlay'),
+  title:         document.getElementById('modal-title'),
+  fieldTitle:    document.getElementById('field-title'),
+  fieldDate:     document.getElementById('field-date'),
+  fieldCompleted:document.getElementById('field-completed'),
+  fieldScore:    document.getElementById('field-score'),
+  fieldTotal:    document.getElementById('field-total'),
+  fieldMonth:    document.getElementById('field-month'),
+  fieldNote:     document.getElementById('field-note'),
+  fieldItems:    document.getElementById('field-items'),
+  dateWrap:      document.getElementById('field-date-wrap'),
+  completedWrap: document.getElementById('field-completed-wrap'),
+  scoreWrap:     document.getElementById('field-score-wrap'),
+  totalWrap:     document.getElementById('field-total-wrap'),
+  monthWrap:     document.getElementById('field-month-wrap'),
+  itemsWrap:     document.getElementById('field-items-wrap'),
+};
 
-    function openModal(kind, id) {
-      modalState.open = true;
-      modalState.kind = kind;
-      modalState.editingId = id || null;
-
-      const titleMap = {
-        quiz: 'Add Quiz',
-        exam: 'Add Exam',
-        todo: 'Add To-Do List',
-        plan: 'Add Monthly Plan'
-      };
-      els.modalTitle.textContent = titleMap[kind] || 'Add Item';
-
-      els.fieldTitleWrap.classList.remove('hidden');
-      els.fieldDateWrap.classList.toggle('hidden', kind === 'plan');
-      els.fieldCompletedWrap.classList.toggle('hidden', kind !== 'quiz');
-      els.fieldScoreWrap.classList.toggle('hidden', kind !== 'quiz');
-      els.fieldTotalWrap.classList.toggle('hidden', kind !== 'quiz');
-      els.fieldMonthWrap.classList.toggle('hidden', kind !== 'plan');
-      els.fieldNoteWrap.classList.toggle('hidden', false);
-      els.fieldItemsWrap.classList.toggle('hidden', kind !== 'todo');
-
-      resetModalFields();
-
-      if (id) {
-        const item = kind === 'todo'
-          ? state.todos.find(item => item.id === id)
-          : kind === 'plan'
-            ? state.plans.find(item => item.id === id)
-            : kind === 'exam'
-              ? state.exams.find(item => item.id === id)
-              : state.quizzes.find(item => item.id === id);
-
-        if (item) {
-          els.fieldTitle.value = item.title || '';
-          els.fieldDate.value = item.date || '';
-          els.fieldMonth.value = item.month || '';
-          els.fieldNote.value = item.notes || '';
-          els.fieldCompleted.checked = Boolean(item.completed);
-          els.fieldScore.value = Number.isFinite(item.score) ? String(item.score) : '';
-          els.fieldTotal.value = Number.isFinite(item.totalMarks) ? String(item.totalMarks) : '';
-          if (kind === 'todo') {
-            els.fieldItems.value = (item.items || []).map(entry => `${entry.done ? '[x]' : '[ ]'} ${entry.text}`).join('\n');
-          }
-        }
-      }
-
-      els.modalOverlay.classList.add('show');
-      requestAnimationFrame(() => els.fieldTitle.focus());
-    }
-
-    function resetModalFields() {
-      els.fieldTitle.value = '';
-      els.fieldDate.value = '';
-      els.fieldCompleted.checked = false;
-      els.fieldScore.value = '';
-      els.fieldTotal.value = '';
-      els.fieldMonth.value = '';
-      els.fieldNote.value = '';
-      els.fieldItems.value = '';
-    }
-
-    function closeModal() {
-      modalState.open = false;
-      modalState.kind = 'quiz';
-      modalState.editingId = null;
-      els.modalOverlay.classList.remove('show');
-      resetModalFields();
-    }
-
-    function saveModalItem() {
-      const title = els.fieldTitle.value.trim();
-      if (!title) {
-        alert('Please provide a title.');
-        return;
-      }
-
-      if (modalState.kind === 'todo') {
-        const item = {
-          id: modalState.editingId || uid(),
-          title,
-          notes: els.fieldNote.value.trim(),
-          items: parseTodoItems(els.fieldItems.value)
-        };
-        if (modalState.editingId) {
-          state.todos = state.todos.map(entry => entry.id === modalState.editingId ? item : entry);
-        } else {
-          state.todos.unshift(item);
-        }
-      } else if (modalState.kind === 'plan') {
-        const item = {
-          id: modalState.editingId || uid(),
-          title,
-          month: els.fieldMonth.value,
-          notes: els.fieldNote.value.trim()
-        };
-        if (modalState.editingId) {
-          state.plans = state.plans.map(entry => entry.id === modalState.editingId ? item : entry);
-        } else {
-          state.plans.unshift(item);
-        }
-      } else {
-        if (modalState.kind === 'exam') {
-          const item = {
-            id: modalState.editingId || uid(),
-            title,
-            date: els.fieldDate.value,
-            notes: els.fieldNote.value.trim()
-          };
-          if (modalState.editingId) {
-            state.exams = state.exams.map(entry => entry.id === modalState.editingId ? item : entry);
-          } else {
-            state.exams.unshift(item);
-          }
-        } else {
-          const scoreRaw = els.fieldScore.value.trim();
-          const totalRaw = els.fieldTotal.value.trim();
-          const score = parseScoreNumber(scoreRaw);
-          const totalMarks = parseTotalMarks(totalRaw);
-          if (scoreRaw !== '' && score === null) {
-            alert('Score must be 0 or more.');
-            return;
-          }
-          if (totalRaw !== '' && totalMarks === null) {
-            alert('Total marks must be at least 1.');
-            return;
-          }
-          if (Number.isFinite(score) && Number.isFinite(totalMarks) && score > totalMarks) {
-            alert('Score cannot be greater than total marks.');
-            return;
-          }
-          const item = normalizeQuiz({
-            id: modalState.editingId || uid(),
-            title,
-            date: els.fieldDate.value,
-            notes: els.fieldNote.value.trim(),
-            completed: els.fieldCompleted.checked,
-            score,
-            totalMarks
-          });
-          if (modalState.editingId) {
-            state.quizzes = state.quizzes.map(entry => entry.id === modalState.editingId ? item : entry);
-          } else {
-            state.quizzes.unshift(item);
-          }
-        }
-      }
-
-      saveState();
-      render();
-      closeModal();
-    }
-
-    function deleteItem(kind, id) {
+function openModal(kind, id) {
+  modalState = { open: true, kind, editingId: id || null };
+  const labels = { quiz:'Add Quiz', exam:'Add Exam', todo:'Add To-Do List', plan:'Add Plan' };
+  mEls.title.textContent = labels[kind] || 'Add';
+  mEls.dateWrap.classList.toggle('hidden', kind === 'plan');
+  mEls.completedWrap.classList.toggle('hidden', kind !== 'quiz');
+  mEls.scoreWrap.classList.toggle('hidden', kind !== 'quiz');
+  mEls.totalWrap.classList.toggle('hidden', kind !== 'quiz');
+  mEls.monthWrap.classList.toggle('hidden', kind !== 'plan');
+  mEls.itemsWrap.classList.toggle('hidden', kind !== 'todo');
+  resetModalFields();
+  if (id) {
+    const arr = { quiz: state.quizzes, exam: state.exams, todo: state.todos, plan: state.plans }[kind];
+    const item = arr.find(i => i.id === id);
+    if (item) {
+      mEls.fieldTitle.value     = item.title || '';
+      mEls.fieldDate.value      = item.date  || '';
+      mEls.fieldMonth.value     = item.month || '';
+      mEls.fieldNote.value      = item.notes || '';
+      mEls.fieldCompleted.checked = Boolean(item.completed);
+      mEls.fieldScore.value     = item.score != null ? item.score : '';
+      mEls.fieldTotal.value     = item.totalMarks != null ? item.totalMarks : '';
       if (kind === 'todo') {
-        state.todos = state.todos.filter(item => item.id !== id);
-      } else if (kind === 'plan') {
-        state.plans = state.plans.filter(item => item.id !== id);
-      } else if (kind === 'exam') {
-        state.exams = state.exams.filter(item => item.id !== id);
-      } else {
-        state.quizzes = state.quizzes.filter(item => item.id !== id);
+        mEls.fieldItems.value = (item.items || []).map(t => `${t.done ? '[x]' : '[ ]'} ${t.text}`).join('\n');
       }
-      saveState();
-      render();
     }
+  }
+  mEls.overlay.classList.add('show');
+  setTimeout(() => mEls.fieldTitle.focus(), 60);
+}
 
-    function parseTodoItems(text) {
-      return text.split(/\n+/).map(line => line.trim()).filter(Boolean).map((line, index) => ({
-        id: uid(),
-        text: line.replace(/^\[(x|X| )\]\s*/, '').trim(),
-        done: /^\[(x|X)\]/.test(line)
-      }));
-    }
+function resetModalFields() {
+  mEls.fieldTitle.value = mEls.fieldDate.value = mEls.fieldMonth.value = mEls.fieldNote.value = mEls.fieldItems.value = '';
+  mEls.fieldScore.value = mEls.fieldTotal.value = '';
+  mEls.fieldCompleted.checked = false;
+}
 
-    function toggleTodoItem(listId, itemId) {
-      const list = state.todos.find(list => list.id === listId);
-      if (!list) return;
-      list.items = list.items.map(item => item.id === itemId ? { ...item, done: !item.done } : item);
-      saveState();
-      render();
-    }
+function closeModal() {
+  modalState.open = false;
+  mEls.overlay.classList.remove('show');
+}
 
-    function moveCalendar(direction) {
-      const current = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1);
-      calendarMonth = current;
-      renderCalendar();
-    }
+function saveModalItem() {
+  const title = mEls.fieldTitle.value.trim();
+  if (!title) { alert('Please provide a title.'); return; }
+  const { kind, editingId } = modalState;
 
-    function formatDate(value) {
-      if (!value) return 'No date';
-      const date = new Date(`${value}T00:00:00`);
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
+  if (kind === 'todo') {
+    const item = {
+      id: editingId || uid(), title,
+      notes: mEls.fieldNote.value.trim(),
+      items: parseTodoItems(mEls.fieldItems.value),
+    };
+    state.todos = editingId ? state.todos.map(i => i.id === editingId ? item : i) : [item, ...state.todos];
+  } else if (kind === 'plan') {
+    const item = { id: editingId || uid(), title, month: mEls.fieldMonth.value, notes: mEls.fieldNote.value.trim() };
+    state.plans = editingId ? state.plans.map(i => i.id === editingId ? item : i) : [item, ...state.plans];
+  } else if (kind === 'exam') {
+    const item = { id: editingId || uid(), title, date: mEls.fieldDate.value, notes: mEls.fieldNote.value.trim() };
+    state.exams = editingId ? state.exams.map(i => i.id === editingId ? item : i) : [item, ...state.exams];
+  } else {
+    const item = {
+      id: editingId || uid(), title,
+      date: mEls.fieldDate.value,
+      notes: mEls.fieldNote.value.trim(),
+      completed: mEls.fieldCompleted.checked,
+      score: mEls.fieldScore.value !== '' ? Number(mEls.fieldScore.value) : null,
+      totalMarks: mEls.fieldTotal.value !== '' ? Number(mEls.fieldTotal.value) : null,
+    };
+    state.quizzes = editingId ? state.quizzes.map(i => i.id === editingId ? item : i) : [item, ...state.quizzes];
+  }
 
-    function parseScoreNumber(value) {
-      if (value === '' || value === null || value === undefined) return null;
-      const parsed = Number(value);
-      if (!Number.isFinite(parsed) || parsed < 0) return null;
-      return parsed;
-    }
+  saveState();
+  renderAll();
+  closeModal();
+}
 
-    function parseTotalMarks(value) {
-      const parsed = parseScoreNumber(value);
-      if (parsed === null) return null;
-      return parsed >= 1 ? parsed : null;
-    }
+function parseTodoItems(raw) {
+  return (raw || '').split('\n')
+    .map(line => line.trim()).filter(Boolean)
+    .map(line => {
+      const done = line.startsWith('[x]');
+      const text = line.replace(/^\[.\]\s*/, '').trim();
+      return { id: uid(), text, done };
+    });
+}
 
-    function normalizeQuiz(quiz) {
-      return {
-        ...quiz,
-        completed: Boolean(quiz.completed),
-        score: parseScoreNumber(quiz.score),
-        totalMarks: parseTotalMarks(quiz.totalMarks)
-      };
-    }
+function deleteItem(kind, id) {
+  if (!confirm('Delete this item?')) return;
+  const map = { quiz:'quizzes', exam:'exams', todo:'todos', plan:'plans' };
+  state[map[kind]] = state[map[kind]].filter(i => i.id !== id);
+  saveState();
+  renderAll();
+}
 
-    function formatQuizResult(quiz) {
-      if (!quiz.completed) return 'Not completed';
-      if (Number.isFinite(quiz.score) && Number.isFinite(quiz.totalMarks)) {
-        const percent = Math.round((quiz.score / quiz.totalMarks) * 100);
-        return `${quiz.score}/${quiz.totalMarks} (${percent}%)`;
-      }
-      if (Number.isFinite(quiz.score)) return `${quiz.score} marks`;
-      return 'Completed';
-    }
+function toggleTodoItem(listId, itemId) {
+  const list = state.todos.find(l => l.id === listId);
+  if (!list) return;
+  const item = list.items.find(i => i.id === itemId);
+  if (item) item.done = !item.done;
+  saveState();
+  renderTodoList();
+}
 
-    function sortByDate(items) {
-      return items.slice().sort((a, b) => {
-        const aDate = a.date || a.month || '';
-        const bDate = b.date || b.month || '';
-        return aDate.localeCompare(bDate);
-      });
-    }
+// ── Block header click: fix double-firing by checking what was clicked ──
+document.addEventListener('click', e => {
+  const hdr = e.target.closest('.block-header');
+  if (!hdr) return;
+  if (e.target.classList.contains('block-complete-toggle')) return; // handled separately
+  const blockId = hdr.dataset.block || hdr.querySelector('[data-block]')?.dataset.block;
+  if (!blockId) return;
+  const bl = document.getElementById(`block-${blockId}`);
+  if (bl) bl.classList.toggle('expanded');
+}, true);
 
-    function renderDashboard() {
-      const upcoming = [...state.quizzes, ...state.exams].filter(item => item.date).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 4);
-      if (!upcoming.length) {
-        els.upcomingList.innerHTML = '<div class="empty-state">No upcoming items yet. Add one to start planning.</div>';
-        return;
-      }
-
-      els.upcomingList.innerHTML = upcoming.map(item => {
-        const kind = item.date && state.exams.some(entry => entry.id === item.id) ? 'exam' : 'quiz';
-        return `
-          <article class="card ${kind}">
-            <div class="meta">${kind === 'exam' ? 'Exam' : 'Quiz'}</div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p class="date">${formatDate(item.date)}</p>
-            ${kind === 'quiz' ? `<p class="result-summary">${formatQuizResult(item)}</p>` : ''}
-            <p>${escapeHtml(item.notes || 'No notes yet.')}</p>
-            <div class="card-actions">
-              <button data-action="edit" data-kind="${kind}" data-id="${item.id}">Edit</button>
-              <button class="danger" data-action="delete" data-kind="${kind}" data-id="${item.id}">Delete</button>
-            </div>
-          </article>`;
-      }).join('');
-    }
-
-    function renderQuizzes() {
-      if (!state.quizzes.length) {
-        els.quizList.innerHTML = '<div class="empty-state">No quizzes yet. Add one to stay on top of your classwork.</div>';
-        return;
-      }
-      els.quizList.innerHTML = state.quizzes.map(item => `
-        <article class="card quiz">
-          <div class="meta">Quiz</div>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p class="date">${formatDate(item.date)}</p>
-          <p class="result-summary">${formatQuizResult(item)}</p>
-          <p>${escapeHtml(item.notes || 'No notes yet.')}</p>
-          <div class="card-actions">
-            <button data-action="edit" data-kind="quiz" data-id="${item.id}">Edit</button>
-            <button class="danger" data-action="delete" data-kind="quiz" data-id="${item.id}">Delete</button>
-          </div>
-        </article>`).join('');
-    }
-
-    function renderExams() {
-      if (!state.exams.length) {
-        els.examList.innerHTML = '<div class="empty-state">No exams yet. Add one to stay prepared.</div>';
-        return;
-      }
-      els.examList.innerHTML = state.exams.map(item => `
-        <article class="card exam">
-          <div class="meta">Exam</div>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p class="date">${formatDate(item.date)}</p>
-          <p>${escapeHtml(item.notes || 'No notes yet.')}</p>
-          <div class="card-actions">
-            <button data-action="edit" data-kind="exam" data-id="${item.id}">Edit</button>
-            <button class="danger" data-action="delete" data-kind="exam" data-id="${item.id}">Delete</button>
-          </div>
-        </article>`).join('');
-    }
-
-    function renderTodos() {
-      if (!state.todos.length) {
-        els.todoList.innerHTML = '<div class="empty-state">No lists yet. Create a checklist and make progress visible.</div>';
-        return;
-      }
-      els.todoList.innerHTML = state.todos.map(list => `
-        <article class="card todo">
-          <div class="meta">Checklist</div>
-          <h3>${escapeHtml(list.title)}</h3>
-          <p>${escapeHtml(list.notes || 'No notes yet.')}</p>
-          <div>
-            ${list.items && list.items.length ? list.items.map(item => `
-              <div class="todo-item">
-                <button data-action="toggle-todo" data-list-id="${list.id}" data-item-id="${item.id}" class="${item.done ? 'done' : ''}">${item.done ? '✓' : '○'}</button>
-                <span class="${item.done ? 'text-done' : ''}">${escapeHtml(item.text)}</span>
-              </div>`).join('') : '<div class="tiny">No checklist items yet.</div>'}
-          </div>
-          <div class="card-actions">
-            <button data-action="edit" data-kind="todo" data-id="${list.id}">Edit</button>
-            <button class="danger" data-action="delete" data-kind="todo" data-id="${list.id}">Delete</button>
-          </div>
-        </article>`).join('');
-    }
-
-    function renderPlans() {
-      if (!state.plans.length) {
-        els.planList.innerHTML = '<div class="empty-state">No monthly plans yet. Add one to keep the bigger picture in view.</div>';
-        return;
-      }
-      els.planList.innerHTML = state.plans.map(plan => `
-        <article class="card plan">
-          <div class="meta">Monthly plan</div>
-          <h3>${escapeHtml(plan.title)}</h3>
-          <p class="date">${escapeHtml(plan.month || 'No month set')}</p>
-          <p>${escapeHtml(plan.notes || 'No notes yet.')}</p>
-          <div class="card-actions">
-            <button data-action="edit" data-kind="plan" data-id="${plan.id}">Edit</button>
-            <button class="danger" data-action="delete" data-kind="plan" data-id="${plan.id}">Delete</button>
-          </div>
-        </article>`).join('');
-    }
-
-    function renderCalendar() {
-      const year = calendarMonth.getFullYear();
-      const month = calendarMonth.getMonth();
-      const firstDay = new Date(year, month, 1);
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const offset = firstDay.getDay();
-      const monthName = calendarMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-      els.calendarMonthTitle.textContent = monthName;
-      els.calendarCaption.textContent = monthName;
-
-      const events = [...state.quizzes, ...state.exams].filter(item => item.date && item.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`));
-      const byDay = {};
-      events.forEach(item => {
-        const day = item.date.split('-')[2];
-        if (!byDay[day]) byDay[day] = [];
-        byDay[day].push(item);
-      });
-
-      const cells = [];
-      for (let i = 0; i < 7; i++) cells.push(`<div class="calendar-head">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][i]}</div>`);
-
-      for (let i = 0; i < offset; i++) cells.push('<div class="calendar-cell empty"></div>');
-      for (let day = 1; day <= daysInMonth; day++) {
-        const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const today = new Date();
-        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
-        const marks = byDay[day] || [];
-        cells.push(`
-          <div class="calendar-cell ${isToday ? 'today' : ''}">
-            <div class="day">${day}</div>
-            <div class="dots">
-              ${marks.slice(0, 3).map(entry => `<span class="dot ${entry.notes && state.exams.some(item => item.id === entry.id) ? 'exam' : 'quiz'}"></span>`).join('')}
-            </div>
-          </div>`);
-      }
-
-      els.calendarGrid.innerHTML = cells.join('');
-    }
-
-    function renderSummary() {
-      els.countQuiz.textContent = state.quizzes.length;
-      els.countExam.textContent = state.exams.length;
-      els.countTodo.textContent = state.todos.reduce((count, list) => count + (list.items ? list.items.length : 0), 0);
-      els.countPlan.textContent = state.plans.length;
-      els.todayLabel.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-    }
-
-    function render() {
-      renderSummary();
-      renderDashboard();
-      renderQuizzes();
-      renderExams();
-      renderTodos();
-      renderPlans();
-      renderCalendar();
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    loadState();
-    render();
-    switchView(currentView);
-  </script>
+</script>
 </body>
 </html>
